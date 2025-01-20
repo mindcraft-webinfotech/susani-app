@@ -9,6 +9,8 @@ import 'package:Susani/models/product.dart';
 import 'package:http/http.dart' as http;
 import 'package:Susani/services/remote_servies.dart';
 
+import '../../models/size_model.dart';
+
 class ProductController extends GetxController {
   var type = "laundry".obs;
   var user_id = "".obs;
@@ -33,6 +35,40 @@ class ProductController extends GetxController {
   WishlistController wishlistController = Get.put(WishlistController());
   var isLoaded = false.obs;
   RxList colors = <String>[].obs;
+
+  // Method to set options from size input as a string or a List
+  // Observable list of size options
+  var options = <SizeModel>[].obs;
+
+  // Observable variable to hold the selected size
+  // var selectedSize = ''.obs;
+  var selectedSize = Rx<String?>(null);
+
+  // Method to set the size
+  void setSize(String size) {
+    selectedSize.value = size;
+  }
+
+  String? get getSize => selectedSize.value;
+
+  // Method to set options from size input as a string or a List
+  void setOptions(dynamic sizes) {
+    selectedSize.value = null;
+    // Check if the sizes are provided in List format
+    if (sizes is List<String>) {
+      options.value = sizes.map((value) => SizeModel(value: value)).toList();
+    } else if (sizes is String) {
+      // If sizes are provided as a string, try to parse it
+      // Example: "10, 20, 30" or "[10, 20, 30]"
+      sizes = sizes.replaceAll(RegExp(r'[\[\]" ]'), ''); // Remove brackets
+      options.value = sizes.split(',').map((value) => SizeModel(value: value.trim())).toList();
+    }
+
+    // Set the selected size to the first option if available
+    if (options.isNotEmpty) {
+      setSize(options.first.value);
+    }
+  }
 
   @override
   void onInit() {
@@ -388,6 +424,8 @@ class ProductController extends GetxController {
               category_name.value = cat.categoryname.toString();
             }
           }
+
+          setOptions(product.value.size.toString());
         } else {
           status.value = "failed";
         }

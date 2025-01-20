@@ -44,7 +44,7 @@ class CheckoutController extends GetxController {
       {String name = ""}) {
     //print(data);
     status.value = "Loading";
-    print("Ordering");
+    print("Ordering makeOrder");
     Future.delayed(Duration(seconds: 1), () async {
       http.Response response = await MyApi.makeOrder(data1);
       print("Printing data: ------------------------------------- response");

@@ -34,13 +34,21 @@ class AddressController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void onReady() {
+    availablePincodes();
+    signinController.user.value.id = signinController.id.value;
+    loadAddress(signinController.user.value);
+    super.onReady();
+  }
+
   void loadAddress(User user) {
     if (user.id != "0" && user.id != "" && user.id != "null") {
       status.value = "loading";
       Future.delayed(Duration(seconds: 1), () async {
         http.Response response = await MyApi.loadAddress(user);
-        // print("===========>>>>>>>>>");
-        // print(response.body);
+        print("===========>>>>>>>>>loadAddress");
+        print(response.body);
         if (response.statusCode == 200) {
           var data = jsonDecode(response.body);
           String res = data['res'];
@@ -145,6 +153,7 @@ class AddressController extends GetxController {
 
   void availablePincodes() {
     pincode_status.value = "Loading";
+    print("available Pincodes");
     Future.delayed(Duration(seconds: 1), () async {
       http.Response response = await MyApi.getAvailablePincodes();
 
@@ -158,7 +167,7 @@ class AddressController extends GetxController {
           pincode_status.value = "Done";
           available_Pincodes.value =
               re.map<Pincode>((e) => Pincode.fromJson(e)).toList();
-          print("----------" + available_Pincodes.value.length.toString());
+          print("---------- available Pincodes" + available_Pincodes.value.length.toString());
         } else {
           pincode_status.value = "Failed: " + msg;
         }
@@ -197,7 +206,7 @@ class AddressController extends GetxController {
     isPinAvailable.value = "Loading";
     Future.delayed(Duration(seconds: 1), () async {
       http.Response response = await MyApi.checkpinAvailability(pincode);
-      // print("----------÷------------------------");
+      print("----------÷------------------------checkpinAvailability");
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         // print(data);

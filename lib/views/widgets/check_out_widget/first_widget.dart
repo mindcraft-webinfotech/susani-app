@@ -1,4 +1,5 @@
 import 'package:Susani/consts/app_color.dart';
+import 'package:Susani/contollers/product_controller/prodcut_controller.dart';
 import 'package:Susani/utils/routes_pages/CommonTool.dart';
 import 'package:Susani/utils/routes_pages/pages_name.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +16,7 @@ import '../../../contollers/signin/SignInController.dart';
 import '../../pages/WebView/MyWebView.dart';
 
 class FirstWidget {
+  static var pcontroller = Get.put(ProductController());
   static var controller = Get.put(CheckoutController());
   static var addressController = Get.put(AddressController());
   var signinController = Get.put(SignInController());
@@ -44,6 +46,7 @@ class FirstWidget {
   @override
   void initState() {
     controller.landmarkDropDownValue.value = "";
+    addressController.availablePincodes();
   }
 
   @override
@@ -221,6 +224,7 @@ class _DatePickerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return DecoratedBox(
       decoration: const BoxDecoration(
         border: Border(

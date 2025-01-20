@@ -14,6 +14,7 @@ import 'package:Susani/models/product.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../contollers/cart_controller/cart_controller.dart';
+import '../../contollers/product_controller/product_categories_controller.dart';
 import '../../models/CartItem.dart';
 import '../../utils/routes_pages/pages_name.dart';
 
@@ -235,19 +236,35 @@ class ProductDesign {
                     )
                   : GestureDetector(
                       onTap: () {
+                        var productCategoriescontroller = Get.put(ProductCategoriesController());
+
                         if (signinController.id.value.trim() != "null" &&
                             signinController.id.value.trim() != "") {
+                          print("ontroller.selectedColor.value");
+                          print(controller.type.value) ;
                           CartItem cartItem = new CartItem();
                           cartItem.product = product;
                           cartItem.color = controller.selectedColor.value;
                           cartItem.quantity.value = product.quant.value;
+                          print(controller.selectedSize.value);
+                          if (controller.selectedSize.value != null) {
+                            cartItem.size = controller.selectedSize.value.toString();
+                          }else{
+                            cartItem.size = controller.options[0].toString();
+                          }
+
                           cartItem.tax = double.parse(product.tax.toString());
+                          cartItem.type = productCategoriescontroller.type.value;
+                          cartItem.clear_cart =false ;
 
                           cartController.saveToCart(
                               cartItem, signinController.id.value);
 
                           cartController.addToCart(cartItem);
                           product.isInCart.value = true;
+
+
+
                         } else {
                           cartController.comeBack.value = true;
                           Get.toNamed(MyPagesName.SignIn);

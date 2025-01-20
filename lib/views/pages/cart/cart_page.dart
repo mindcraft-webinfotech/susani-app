@@ -21,6 +21,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../consts/app_color.dart';
 
 class CartPage extends StatelessWidget {
+
   var appConfigController = Get.put(MyAppConfigController());
   var signInController = Get.put(SignInController());
   var controller = Get.put(CartController());
@@ -277,10 +278,19 @@ class CartPage extends StatelessWidget {
                                             fit: BoxFit.fill,
                                           ),
                                         )),
-                                        title: Text(controller
-                                            .cartItems[index].product!.name!),
+                                        title: Wrap(
+                                          children:[
+                                            Text(controller
+                                                .cartItems[index].product!.name!),
+                                            Text(" (${controller
+                                                .cartItems[index].size!})"),
+
+                                          ] ),
                                         subtitle: Row(
                                           children: [
+                                            // Text(controller
+                                            //     .cartItems[index]
+                                            //     .product!.type ??" ad"),
                                             Text(
                                               "\₹" +
                                                   (double.parse(controller

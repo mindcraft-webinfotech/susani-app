@@ -13,7 +13,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import '../dashboard_controller/dashboard_controller.dart';
+
 class CartController extends GetxController {
+
+  var selectedtype='Na'.obs;
   var cartItems = <CartItem>[].obs;
   var subTotal = 0.0.obs;
   var subTotalDiscount = 0.0.obs;
@@ -46,7 +50,7 @@ class CartController extends GetxController {
     status.value = "Loading";
     Future.delayed(Duration(seconds: 1), () async {
       http.Response response = await MyApi.saveToCart(cartItem, user_id);
-      // print(response.body);
+      print(response.body);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         String res = data['res'];
@@ -63,6 +67,61 @@ class CartController extends GetxController {
             );
           }
         } else {
+          var dashboardController = Get.put(DashboardController());
+
+          Get.defaultDialog(
+                title: "CONFIRMATION",
+                titleStyle: TextStyle(
+                    fontSize: 16),
+                middleText: msg,
+                middleTextStyle:
+                TextStyle(
+                    fontSize: 12),
+                cancel: ElevatedButton(
+                    style: ElevatedButton
+                        .styleFrom(
+                        backgroundColor: Colors
+                            .white),
+                    onPressed: () {
+                      // dashboardController.goToTab(3);
+                      Get.back();
+                    },
+                    child: Text(
+                        "Cancel",
+                        style:
+                        TextStyle(
+                          color: Colors
+                              .black,
+                        ))),
+                confirm: ElevatedButton(
+                    style: ElevatedButton
+                        .styleFrom(
+                        backgroundColor: Color
+                            .fromARGB(
+                            255,
+                            3,
+                            33,
+                            49),
+                        elevation:
+                        5),
+                    onPressed: () {
+                      daleteAllItem();
+                      cartItem.clear_cart = true;
+                      saveToCart(cartItem, user_id,context);
+                      Get.back();
+                      // dashboardController.goToTab(3);
+                    },
+                    child: Text(
+                        "Clear",
+                        style:
+                        TextStyle(
+                          color: Colors
+                              .white,
+                        ))),
+                contentPadding:
+                EdgeInsets.all(20));
+
+
           status.value = "Failed: " + msg;
         }
       } else {
@@ -74,10 +133,10 @@ class CartController extends GetxController {
   void getCartItems(String user_id) {
     status.value = "Loading";
     cartItems.clear();
-    print("user id $user_id");
+    // print("user id $user_id");
     Future.delayed(Duration(seconds: 1), () async {
       http.Response response = await MyApi.getCartItems(user_id);
-      print(" --------------------->>>>>>>>>>>>>>>>>>>" + user_id.toString());
+      print(" getCartItems " + user_id.toString());
       print(response.body);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
@@ -97,6 +156,7 @@ class CartController extends GetxController {
             var quantity = item["quantity"];
             var total = item["total"];
              var tax =  double.parse(item["tax"].toString());
+             var type =  item["type"].toString();
 
             print(tax);
 
@@ -107,6 +167,7 @@ class CartController extends GetxController {
             cartItem.total = double.parse(total);
             cartItem.product = product;
             cartItem.tax = tax;
+            cartItem.type = type.toString();
             status.value = "Done";
             addToCart(cartItem);
           }
@@ -249,7 +310,7 @@ class CartController extends GetxController {
 
         st += itmeTotal;
       } else {
-        print("cartItem.tax :" +cartItem.tax.toString());
+        // print("cartItem.tax :" +cartItem.tax.toString());
         var itmeTotalTax = cartItem.quantity *
             (double.parse(cartItem.tax.toString()));
 
@@ -334,6 +395,7 @@ class CartController extends GetxController {
         "pick_date_time": checkoutController.dateTime.value.toString(),
         "quantity": cartItems.length,
         "cart_items": cartitems,
-        "serviceType": checkoutController.serviceType.value.toString()
+        "serviceType": checkoutController.serviceType.value.toString(),
+        "source": cartItems.first.type.toString(),
       };
 }

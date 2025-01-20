@@ -16,28 +16,53 @@ import 'package:Susani/views/widgets/check_out_widget/first_widget.dart';
 import 'package:Susani/views/widgets/check_out_widget/second_widget.dart';
 import 'package:Susani/views/widgets/check_out_widget/third.widget.dart';
 
-class CheckoutPage extends StatelessWidget {
+class CheckoutPage extends StatefulWidget {
+
+
+
+
+  @override
+  State<CheckoutPage> createState() => _CheckoutPageState();
+}
+
+class _CheckoutPageState extends State<CheckoutPage> {
   var controller = Get.put(CheckoutController());
+
   var signInController = Get.put(SignInController());
+
   var cartController = Get.put(CartController());
+
   var appConfigController = Get.put(MyAppConfigController());
+
   var addressController = Get.put(AddressController());
 
-  CheckoutPage() {
+
+  @override
+  void initState() {
+    super.initState();
     addressController.loadAddress(signInController.user.value);
+  }
+
+
+  @override
+  void dispose() {
+    addressController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Checkout",
           style: TextStyle(fontSize: 16),
         ),
       ),
       body: Column(children: [
+
         Expanded(
             child: Obx(
           () => Stepper(

@@ -287,7 +287,7 @@ class MyOrdersPage extends StatelessWidget {
                                                                           ),
                                                                           Row(
                                                                             mainAxisAlignment:
-                                                                                MainAxisAlignment.spaceBetween,
+                                                                            MainAxisAlignment.spaceBetween,
                                                                             children: [
                                                                               Text("Contact", style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
                                                                               Text(controller.orderStatusResponse[index].mobile.toString(), style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),

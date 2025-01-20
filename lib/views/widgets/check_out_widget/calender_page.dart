@@ -36,6 +36,7 @@ class _CalenderPageState extends State<CalenderPage> {
       : controller.serviceType.value;
   var firstdate = new DateTime.now().obs;
   var lastDate = new DateTime.now().obs;
+
   @override
   void initState() {
     // controller.serviceType.value =
@@ -52,7 +53,7 @@ class _CalenderPageState extends State<CalenderPage> {
             width: double.maxFinite,
             decoration: BoxDecoration(
                 borderRadius:
-                    BorderRadius.vertical(top: Radius.circular(20.0))),
+                BorderRadius.vertical(top: Radius.circular(20.0))),
             child: Container(
               child: Column(
                 children: [
@@ -156,10 +157,10 @@ class _CalenderPageState extends State<CalenderPage> {
                             selectableDayPredicate: (day) {
                               bool b = true;
                               String pdate =
-                                  DateFormat('yyyy-MM-dd').format(day);
+                              DateFormat('yyyy-MM-dd').format(day);
 
                               for (var element
-                                  in bookeddate_controller.bookdeList) {
+                              in bookeddate_controller.bookdeList) {
                                 if (pdate == element.date.toString()) {
                                   b = false;
                                   break;
@@ -227,6 +228,7 @@ class _CalenderPageState extends State<CalenderPage> {
                           ),
                         ],
                       ),
+
                       Center(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -234,33 +236,36 @@ class _CalenderPageState extends State<CalenderPage> {
                           child: Container(
                             height: 40,
                             child: Obx(
-                              () => addressController.pincode_status.value ==
-                                      "Loading"
+                                  () =>
+                              addressController.pincode_status.value ==
+                                  "Loading"
                                   ? Container(
-                                      child: LinearProgressIndicator(),
-                                    )
+                                child: LinearProgressIndicator(),
+                              )
                                   : ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      shrinkWrap: true,
-                                      // physics: NeverScrollableScrollPhysics(),
-                                      itemCount: addressController
-                                          .available_Pincodes.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return GestureDetector(
-                                            onTap: () {},
-                                            child: Container(
-                                                padding: EdgeInsets.all(5),
-                                                margin: EdgeInsets.all(5),
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                    color:
-                                                        Colors.pink.shade100),
-                                                child: Text(
-                                                    "${addressController.available_Pincodes[index].pincode}")));
-                                      }),
+                                  scrollDirection: Axis.horizontal,
+                                  shrinkWrap: true,
+                                  // physics: NeverScrollableScrollPhysics(),
+                                  itemCount: addressController
+                                      .available_Pincodes.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return GestureDetector(
+                                        onTap: () {},
+                                        child: Container(
+                                            padding: EdgeInsets.all(5),
+                                            margin: EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                BorderRadius.circular(
+                                                    5),
+                                                color:
+                                                Colors.pink.shade100),
+                                            child: Text(
+                                                "${addressController
+                                                    .available_Pincodes[index]
+                                                    .pincode}")));
+                                  }),
                             ),
                           ),
                         ),
@@ -285,129 +290,130 @@ class _CalenderPageState extends State<CalenderPage> {
                         Column(
                           children: <Widget>[
                             Obx(
-                              () => addressController.isPinAvailable.value ==
-                                      "Loading"
+                                  () =>
+                              addressController.isPinAvailable.value ==
+                                  "Loading"
                                   ? Container(
-                                      child:
-                                          Text("Checking pincode availability"),
-                                    )
+                                child:
+                                Text("Checking pincode availability"),
+                              )
                                   : addressController.isPinAvailable.value ==
-                                          "yes"
-                                      ? ListView.builder(
-                                          padding: EdgeInsets.only(top: 1),
-                                          physics:
-                                              NeverScrollableScrollPhysics(),
-                                          shrinkWrap: true,
-                                          itemCount: AppConstraints.type.length,
-                                          itemBuilder: (context, index) {
-                                            return Card(
-                                              shadowColor: Colors.black,
-                                              elevation: 5,
-                                              child: ListTile(
-                                                title: Text(AppConstraints.type[
-                                                        AppConstraints.type.keys
-                                                            .elementAt(index)]
-                                                    .toString()),
-                                                leading: Radio<String>(
-                                                  value: AppConstraints
-                                                      .type.keys
-                                                      .elementAt(index),
-                                                  groupValue: _character,
-                                                  onChanged:
-                                                      (String? value) async {
-                                                    setState(() {
-                                                      _character = value;
-                                                      controller.serviceType
-                                                          .value = _character!;
-                                                      cartController
-                                                          .createSubtotal();
-                                                      cartController
-                                                          .createTotal();
+                                  "yes"
+                                  ? ListView.builder(
+                                  padding: EdgeInsets.only(top: 1),
+                                  physics:
+                                  NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: AppConstraints.type.length,
+                                  itemBuilder: (context, index) {
+                                    return Card(
+                                      shadowColor: Colors.black,
+                                      elevation: 5,
+                                      child: ListTile(
+                                        title: Text(AppConstraints.type[
+                                        AppConstraints.type.keys
+                                            .elementAt(index)]
+                                            .toString()),
+                                        leading: Radio<String>(
+                                          value: AppConstraints
+                                              .type.keys
+                                              .elementAt(index),
+                                          groupValue: _character,
+                                          onChanged:
+                                              (String? value) async {
+                                            setState(() {
+                                              _character = value;
+                                              controller.serviceType
+                                                  .value = _character!;
+                                              cartController
+                                                  .createSubtotal();
+                                              cartController
+                                                  .createTotal();
 
-                                                      if (_character ==
-                                                          "Urgent Service") {
-                                                        date =
-                                                            new DateTime.now();
-                                                        firstdate.value =
-                                                            date.add(Duration(
-                                                                days: 0));
-                                                        lastDate.value =
-                                                            date.add(Duration(
-                                                                days: 364));
-                                                      } else if (_character ==
-                                                          "Semi Urgent Service") {
-                                                        date =
-                                                            new DateTime.now();
-                                                        firstdate.value =
-                                                            date.add(Duration(
-                                                                days: 1));
-                                                        lastDate.value =
-                                                            date.add(Duration(
-                                                                days: 364));
-                                                      } else if (_character ==
-                                                          "General Service") {
-                                                        date =
-                                                            new DateTime.now();
-                                                        firstdate.value =
-                                                            date.add(Duration(
-                                                                days: 4));
-                                                        lastDate.value =
-                                                            date.add(Duration(
-                                                                days: 364));
-                                                      }
-                                                    });
-                                                  },
-                                                ),
-                                              ),
-                                            );
-                                          })
-                                      : ListView.builder(
-                                          padding: EdgeInsets.only(top: 1),
-                                          physics:
-                                              NeverScrollableScrollPhysics(),
-                                          shrinkWrap: true,
-                                          itemCount: AppConstraints
-                                              .type_for_pin_unavailable.length,
-                                          itemBuilder: (context, index) {
-                                            return Card(
-                                              shadowColor: Colors.black,
-                                              elevation: 5,
-                                              child: ListTile(
-                                                title: Text(AppConstraints
-                                                    .type_for_pin_unavailable[
-                                                        AppConstraints
-                                                            .type_for_pin_unavailable
-                                                            .keys
-                                                            .elementAt(index)]
-                                                    .toString()),
-                                                leading: Radio<String>(
-                                                  value: AppConstraints
+                                              if (_character ==
+                                                  "Urgent Service") {
+                                                date =
+                                                new DateTime.now();
+                                                firstdate.value =
+                                                    date.add(Duration(
+                                                        days: 0));
+                                                lastDate.value =
+                                                    date.add(Duration(
+                                                        days: 364));
+                                              } else if (_character ==
+                                                  "Semi Urgent Service") {
+                                                date =
+                                                new DateTime.now();
+                                                firstdate.value =
+                                                    date.add(Duration(
+                                                        days: 1));
+                                                lastDate.value =
+                                                    date.add(Duration(
+                                                        days: 364));
+                                              } else if (_character ==
+                                                  "General Service") {
+                                                date =
+                                                new DateTime.now();
+                                                firstdate.value =
+                                                    date.add(Duration(
+                                                        days: 4));
+                                                lastDate.value =
+                                                    date.add(Duration(
+                                                        days: 364));
+                                              }
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  })
+                                  : ListView.builder(
+                                  padding: EdgeInsets.only(top: 1),
+                                  physics:
+                                  NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: AppConstraints
+                                      .type_for_pin_unavailable.length,
+                                  itemBuilder: (context, index) {
+                                    return Card(
+                                      shadowColor: Colors.black,
+                                      elevation: 5,
+                                      child: ListTile(
+                                        title: Text(AppConstraints
+                                            .type_for_pin_unavailable[
+                                        AppConstraints
+                                            .type_for_pin_unavailable
+                                            .keys
+                                            .elementAt(index)]
+                                            .toString()),
+                                        leading: Radio<String>(
+                                          value: AppConstraints
+                                              .type_for_pin_unavailable
+                                              .keys
+                                              .elementAt(index),
+                                          groupValue: _character,
+                                          onChanged:
+                                              (String? value) async {
+                                            setState(() {
+                                              _character = value;
+                                              controller.serviceType
+                                                  .value = _character!;
+                                              cartController
+                                                  .createTotal();
+                                              if (_character ==
+                                                  AppConstraints
                                                       .type_for_pin_unavailable
                                                       .keys
-                                                      .elementAt(index),
-                                                  groupValue: _character,
-                                                  onChanged:
-                                                      (String? value) async {
-                                                    setState(() {
-                                                      _character = value;
-                                                      controller.serviceType
-                                                          .value = _character!;
-                                                      cartController
-                                                          .createTotal();
-                                                      if (_character ==
-                                                          AppConstraints
-                                                              .type_for_pin_unavailable
-                                                              .keys
-                                                              .first) {
-                                                        addressController
-                                                            .availablePincodes();
-                                                      }
-                                                    });
-                                                  },
-                                                ),
-                                              ),
-                                            );
-                                          }),
+                                                      .first) {
+                                                addressController
+                                                    .availablePincodes();
+                                              }
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  }),
                             )
                           ],
                         )

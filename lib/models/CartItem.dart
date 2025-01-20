@@ -12,7 +12,9 @@ class CartItem {
   String? color;
   String? size;
   double? total;
+  String? type;
   double? tax;
+  bool? clear_cart = false;
 
   CartItem({
     this.id,
@@ -21,6 +23,8 @@ class CartItem {
     this.size,
     this.total,
     this.tax,
+    this.type,
+    this.clear_cart
   });
   CartItem.fromJson(Map<String, dynamic> json) {
     quantity.value = json['quantity'] == "null"
@@ -28,10 +32,13 @@ class CartItem {
         : int.parse(json['quantity'].toString().trim());
     color = json['color'] == "null" ? "" : json['color'];
     size = json['size'] == "null" ? "" : json['size'];
-    tax = json['tax'] == "null" ? "" : json['tax'];
+    // tax = json['tax'] == "null" ? 0 : double.parse(json['tax']);
+    // tax = json['tax'] == "null" ? "" : json['tax'];
     product = json['product'] == "null"
         ? new Product()
         : Product.fromJson(json['product']);
+    type = json['type'] == "null" ? "" : json['type'];
+    clear_cart = json['clear_cart'] == "null" ? "" : json['clear_cart'];
   }
 
   Map<String, dynamic> toJson() => {
@@ -40,5 +47,7 @@ class CartItem {
         "size": size,
         "product": product,
         "tax": tax,
+        "type": type,
+        "clear_cart": clear_cart
       };
 }

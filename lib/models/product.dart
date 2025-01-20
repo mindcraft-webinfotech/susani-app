@@ -30,6 +30,7 @@ class Product {
   List<dynamic>? img;
   var quant = 1.obs;
 
+
   Product(
       {this.id,
       this.categoryId,
@@ -181,6 +182,6 @@ class Product {
         "unit": unit.toString(),
         "quant": quant.toString(),
         "img": img!,
-        "tax": tax!,
+        "tax": tax!
       };
 }

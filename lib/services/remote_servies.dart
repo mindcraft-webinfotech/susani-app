@@ -331,6 +331,9 @@ class MyApi {
       'Content-Type': 'application/json',
     };
 
+    print(AppConstraints.ORDER_URL);
+    print(data.toString());
+    print(data['cart_items']);
     return await post(url, headers: headers, body: jsonEncode(data));
   }
 
@@ -370,14 +373,28 @@ class MyApi {
   static Future<http.Response> saveToCart(
       CartItem cartItem, String user_id) async {
     var url = Uri.parse(AppConstraints.DATA_URL);
+    print({
+      "flag": "add_to_cart",
+      "product_id": cartItem.product!.id.toString(),
+      "user_id": user_id,
+      "total": cartItem.total.toString(),
+      "quantity": cartItem.quantity.toString(),
+      "size": cartItem.size.toString(),
+      "type": cartItem.type.toString(),
+      "color": cartItem.quantity.toString(),
+      cartItem.clear_cart.toString() == "true" ? "clear_cart": "_cart": cartItem.clear_cart.toString()
+
+    });
     return await http.post(url, body: {
       "flag": "add_to_cart",
       "product_id": cartItem.product!.id.toString(),
       "user_id": user_id,
       "total": cartItem.total.toString(),
       "quantity": cartItem.quantity.toString(),
-      "size": cartItem.quantity.toString(),
-      "color": cartItem.quantity.toString()
+      "size": cartItem.size.toString(),
+      "type": cartItem.type.toString(),
+      "color": cartItem.quantity.toString(),
+      cartItem.clear_cart.toString() == "true" ? "clear_cart": "_cart": cartItem.clear_cart.toString()
     });
   }
 

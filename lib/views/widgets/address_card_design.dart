@@ -43,9 +43,9 @@ class AddressCardDesign {
                                   onTap: () {
                                     callback(
                                         addressController.addresses[index]);
-                                    // print("Passing data" +
-                                    //     addressController.addresses[index]
-                                    //         .toString());
+                                    print("Passing data" +
+                                        addressController.addresses[index]
+                                            .toString());
                                   },
                                   child: Row(
                                     children: [
@@ -165,14 +165,14 @@ class AddressCardDesign {
                                         "----------------------??????${value}");
                                     checkoutController.selectedId.value =
                                         int.parse(value.toString());
-                                    // print("radio tapped Id--->" +
-                                    //     checkoutController.selectedId.value
-                                    //         .toString());
+                                    print("radio tapped Id--->" +
+                                        checkoutController.selectedId.value
+                                            .toString());
                                     checkoutController.selectedAddress.value =
                                         addressController.addresses[index];
-                                    // print("radio tapped Address--->" +
-                                    //     checkoutController.selectedAddress.value
-                                    //         .toString());
+                                    print("radio tapped Address--->" +
+                                        checkoutController.selectedAddress.value
+                                            .toString());
                                     checkoutController.getAllLandMarks(
                                         int.parse(signinController.id.value),
                                         addressController
@@ -254,6 +254,9 @@ class AddressCardDesign {
                                   int.parse(value.toString());
                               checkoutController.selectedAddress.value =
                                   addressController.addresses[index];
+
+                              print("checkoutController.selectedId.value");
+                              print(checkoutController.selectedId.value);
                             }),
                       )
                     ],

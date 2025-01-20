@@ -168,9 +168,8 @@ class ProductPage extends StatelessWidget {
             ]),
         body: Column(
           children: [
-
-
-            // Text(controller.type.value,style: TextStyle(fontSize: 20),),
+            Text(
+              "${productController.type.value} Products",),
             // ---------------------------------- categories
            Padding(
              padding: const EdgeInsets.all(8.0),

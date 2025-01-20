@@ -131,7 +131,7 @@ class ThirdWidget {
                             Text(checkoutController.serviceType.value,
                                 style: TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.w700)),
-                            const SizedBox(
+                             const SizedBox(
                               height: 5,
                             ),
                             Text(

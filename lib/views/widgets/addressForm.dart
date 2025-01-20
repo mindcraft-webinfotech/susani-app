@@ -24,6 +24,8 @@ class AddressForm {
                 GestureDetector(
                     onTap: () {
                       controller.showNewAddressForm.value = false;
+                      print(" controller.showNewAddressForm");
+                      print( controller.showNewAddressForm.value);
                     },
                     child: CircleAvatar(radius: 15, child: Icon(Icons.close)))
               ],
