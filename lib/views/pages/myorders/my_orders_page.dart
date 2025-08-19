@@ -1,3 +1,4 @@
+import 'package:Susani/views/pages/ecom/utils/widget_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -114,6 +115,7 @@ class MyOrdersPage extends StatelessWidget {
                   itemBuilder: (context) => getFilterItems()))
             ]),
         body: Obx(
+
           () => controller.status == "Loading"
               ? Center(
                   child: Text("Loading records.."),
@@ -125,6 +127,8 @@ class MyOrdersPage extends StatelessWidget {
                   : ListView.builder(
                       itemCount: controller.orders.length,
                       itemBuilder: (BuildContext context, int index) {
+
+
                         return Padding(
                           padding: const EdgeInsets.all(15),
                           child: Container(
@@ -172,19 +176,27 @@ class MyOrdersPage extends StatelessWidget {
                                         child: ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(100),
-                                          child: CachedNetworkImage(
+                                          child: ImageWithShimmer(
                                               imageUrl: signInController
-                                                  .user.value.image.value),
+                                                  .user.value.image.value,
+                                              height: 50,
+                                              width: 50,
+                                              Fit: BoxFit.cover),
                                         ),
                                       ),
                                     )
                                   ],
                                 ),
                                 Container(
-                                  child: Column(
-                                      children: itemList(
+                                  child:
+                                  // Text(controller.orders[index].cartItems!.length.toString(),style: TextStyle(fontSize: 20),),
+
+                                    Column(
+                                      children:
+
+                                      itemList(
                                           controller.orders[index].cartItems!,
-                                          index)),
+                                          index)) ,
                                 ),
                                 Row(
                                   mainAxisAlignment:
@@ -518,7 +530,10 @@ class MyOrdersPage extends StatelessWidget {
 
   List<Widget> itemList(List<dynamic> cartItems, int index) {
     List<Widget> itemlis = [];
+
     for (int subindex = 0; subindex < cartItems.length; subindex++) {
+      print(itemlis);
+
       itemlis.add(Card(
           elevation: 0,
           child: InkWell(
@@ -526,19 +541,43 @@ class MyOrdersPage extends StatelessWidget {
               padding: EdgeInsets.all(5),
               child: Row(
                 children: [
+                  controller
+                      .orders[index].cartItems![subindex].product.img.isEmpty
+                      ? Text(" Data Missing"):
                   GestureDetector(
                     onTap: () {
                       Get.toNamed(MyPagesName.productFullView,
                           arguments: controller
                               .orders[index].cartItems![subindex].product.id);
                     },
-                    child: CircleAvatar(
-                      backgroundImage: NetworkImage(AppConstraints.PRODUCT_URL +
+                    child:
+                    CircleAvatar(
+                      child: ClipRRect(
+                          borderRadius:
+                          BorderRadius.circular(100),
+
+                          child:
+
+
+                    ImageWithShimmer(
+                      imageUrl:
+                      AppConstraints.PRODUCT_URL +
                           "" +
                           controller.orders[index].cartItems![subindex].product
-                              .img[0]),
-                      radius: 25,
-                    ),
+                              .img[0],
+                      height: 50,
+                      width: 50,
+                      Fit: BoxFit.cover,
+                    )
+                      ))
+
+                    // CircleAvatar(
+                    //   backgroundImage: NetworkImage(AppConstraints.PRODUCT_URL +
+                    //       "" +
+                    //       controller.orders[index].cartItems![subindex].product
+                    //           .img[0]),
+                    //   radius: 25,
+                    // ),
                   ),
                   SizedBox(
                     width: 10,

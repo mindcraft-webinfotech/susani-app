@@ -1,5 +1,6 @@
 import 'package:Susani/contollers/checkout_controller/checkout_controller.dart';
 import 'package:Susani/contollers/product_controller/prodcut_controller.dart';
+import 'package:Susani/views/pages/ecom/utils/widget_utils.dart';
 import 'package:badges/badges.dart' as badge;
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -21,14 +22,12 @@ import 'package:shimmer/shimmer.dart';
 import '../../../consts/app_color.dart';
 
 class CartPage extends StatelessWidget {
-
-  var appConfigController = Get.put(MyAppConfigController());
-  var signInController = Get.put(SignInController());
-  var controller = Get.put(CartController());
-  var dashboardController = Get.put(DashboardController());
-  var check = Get.put(CheckoutController());
-
-  static var addressController = Get.put(AddressController());
+  var appConfigController = Get.find<MyAppConfigController>();
+  var signInController = Get.find<SignInController>();
+  var controller = Get.find<CartController>();
+  var dashboardController = Get.find<DashboardController>();
+  var check = Get.find<CheckoutController>();
+  static var addressController = Get.find<AddressController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,6 +84,7 @@ class CartPage extends StatelessWidget {
                               var color = controller.cartItems[index].color!;
                               return Container(
                                 child: Card(
+                                  color: Colors.white,
                                   elevation: 5,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10)),
@@ -115,20 +115,21 @@ class CartPage extends StatelessWidget {
                                                         title: "CONFIRMATION",
                                                         titleStyle: TextStyle(
                                                             fontSize: 16),
-                                                        middleText: "Are you sure you want to remove " +
-                                                            controller
-                                                                .cartItems[
-                                                                    index]
-                                                                .product!
-                                                                .name! +
-                                                            "?",
+                                                        middleText:
+                                                            "Are you sure you want to remove " +
+                                                                controller
+                                                                    .cartItems[
+                                                                        index]
+                                                                    .product!
+                                                                    .name! +
+                                                                "?",
                                                         middleTextStyle:
                                                             TextStyle(
                                                                 fontSize: 12),
                                                         cancel: ElevatedButton(
-                                                            style: ElevatedButton
-                                                                .styleFrom(
-                                                                    backgroundColor: Colors
+                                                            style: ElevatedButton.styleFrom(
+                                                                backgroundColor:
+                                                                    Colors
                                                                         .white),
                                                             onPressed: () {
                                                               Get.back();
@@ -141,16 +142,15 @@ class CartPage extends StatelessWidget {
                                                                       .black,
                                                                 ))),
                                                         confirm: ElevatedButton(
-                                                            style: ElevatedButton
-                                                                .styleFrom(
-                                                                    backgroundColor: Color
+                                                            style: ElevatedButton.styleFrom(
+                                                                backgroundColor:
+                                                                    Color
                                                                         .fromARGB(
                                                                             255,
                                                                             3,
                                                                             33,
                                                                             49),
-                                                                    elevation:
-                                                                        5),
+                                                                elevation: 5),
                                                             onPressed: () {
                                                               controller.daleteItem(
                                                                   controller
@@ -268,82 +268,95 @@ class CartPage extends StatelessWidget {
                                           ),
                                         ),
                                         leading: Container(
+                                            margin: EdgeInsets.only(left: 10),
                                             child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          child: Image.network(
-                                            AppConstraints.PRODUCT_URL +
-                                                controller.cartItems[index]
-                                                    .product!.img![0],
-                                            fit: BoxFit.fill,
-                                          ),
-                                        )),
-                                        title: Wrap(
-                                          children:[
-                                            Text(controller
-                                                .cartItems[index].product!.name!),
-                                            Text(" (${controller
-                                                .cartItems[index].size!})"),
-
-                                          ] ),
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                child: ImageWithShimmer(
+                                                    imageUrl: AppConstraints
+                                                            .PRODUCT_URL +
+                                                        controller
+                                                            .cartItems[index]
+                                                            .product!
+                                                            .img![0],
+                                                    Fit: BoxFit.fitHeight,
+                                                    height: 200,
+                                                    width: 50))),
+                                        title: Wrap(children: [
+                                          Text(controller
+                                              .cartItems[index].product!.name!),
+                                          // Text(" (${controller
+                                          //     .cartItems[index].size!})"),
+                                        ]),
                                         subtitle: Row(
                                           children: [
                                             // Text(controller
                                             //     .cartItems[index]
                                             //     .product!.type ??" ad"),
-                                            Text(
-                                              "\₹" +
-                                                  (double.parse(controller
-                                                              .cartItems[index]
-                                                              .product!
-                                                              .mrp
-                                                              .toString()) -
-                                                          controller
-                                                              .cartItems[index]
-                                                              .product!
-                                                              .discount!)
-                                                      .toString(),
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                              " + " +
-                                                  (double.parse(controller
-                                                      .cartItems[index]
-                                                      .product!
-                                                      .gst
-                                                      .toString()))
-                                                      .toString() +"% GST",
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.w100),
-                                            ),
-
-                                            SizedBox(
-                                              width: 20,
-                                            ),
-                                            controller.cartItems[index].product!
-                                                        .discount ==
-                                                    0
-                                                ? Container()
-                                                : Text(
-                                                    "\₹" +
-                                                        (double.parse(controller
-                                                                .cartItems[
-                                                                    index]
-                                                                .product!
-                                                                .mrp
-                                                                .toString()))
-                                                            .toString(),
-                                                    style: TextStyle(
-                                                      color: Colors.red,
+                                            Wrap(
+                                              children: [
+                                                Text(
+                                                  "\₹" +
+                                                      (double.parse(controller
+                                                                  .cartItems[
+                                                                      index]
+                                                                  .product!
+                                                                  .mrp
+                                                                  .toString()) -
+                                                              controller
+                                                                  .cartItems[
+                                                                      index]
+                                                                  .product!
+                                                                  .discount!)
+                                                          .toString(),
+                                                  style: TextStyle(
+                                                      color: Colors.black,
                                                       fontWeight:
-                                                          FontWeight.bold,
-                                                      decoration: TextDecoration
-                                                          .lineThrough,
-                                                    ),
-                                                  ),
+                                                          FontWeight.bold),
+                                                ),
+                                                Text(
+                                                  " + " +
+                                                      (double.parse(controller
+                                                              .cartItems[index]
+                                                              .product!
+                                                              .gst
+                                                              .toString()))
+                                                          .toString() +
+                                                      "% GST",
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.w100),
+                                                ),
+                                                SizedBox(
+                                                  width: 20,
+                                                ),
+                                                controller
+                                                            .cartItems[index]
+                                                            .product!
+                                                            .discount ==
+                                                        0
+                                                    ? Container()
+                                                    : Text(
+                                                        "\₹" +
+                                                            (double.parse(controller
+                                                                    .cartItems[
+                                                                        index]
+                                                                    .product!
+                                                                    .mrp
+                                                                    .toString()))
+                                                                .toString(),
+                                                        style: TextStyle(
+                                                          color: Colors.red,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .lineThrough,
+                                                        ),
+                                                      ),
+                                              ],
+                                            ),
 
                                             // Container(
                                             //   child: Card(
@@ -479,6 +492,7 @@ class CartPage extends StatelessWidget {
                                                     "\₹" +
                                                         appConfigController
                                                             .appConfig
+                                                            .value
                                                             .shipping_fee!
                                                             .toStringAsFixed(1),
                                                     style: TextStyle(
@@ -565,10 +579,6 @@ class CartPage extends StatelessWidget {
                                     Expanded(
                                       child: GestureDetector(
                                         onTap: () {
-                                          // print("Address length: " +
-                                          //     addressController.addresses.length
-                                          //         .toString());
-
                                           if (signInController.id.value
                                                       .trim() !=
                                                   "null" &&
@@ -577,6 +587,8 @@ class CartPage extends StatelessWidget {
                                                   "") {
                                             Get.toNamed(
                                                 MyPagesName.checkoutPage);
+                                            addressController.loadAddress(
+                                                signInController.user.value);
                                           } else {
                                             Get.toNamed(MyPagesName.SignIn);
                                           }

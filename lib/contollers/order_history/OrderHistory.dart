@@ -50,6 +50,7 @@ class OrderHistoryController extends GetxController {
   }
 
   RxList<Order> orderStatus(String orderid) {
+    print("orderStatus" + orderid);
     order_status.value = "Loading";
     Future.delayed(Duration(seconds: 1), () async {
       http.Response response = await MyApi.orderStatus(orderid);

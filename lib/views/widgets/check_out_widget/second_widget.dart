@@ -10,17 +10,14 @@ import '../../../contollers/address_controller/address_controller.dart';
 
 class SecondWidget {
   final BuildContext context;
-  var checkoutController = Get.put(CheckoutController());
-  var addressController = Get.put(AddressController());
+  var checkoutController = Get.find<CheckoutController>();
+  var addressController = Get.find<AddressController>();
 
   SecondWidget({required this.context});
 
   Container get secondWidget {
     var first = FirstWidget(context: context);
-
-    print("----------------AdreessPincode" +
-        addressController.pincode_status.value);
-    return addressController.pincode_status.value == false
+    return addressController.pincodeStatus.value == false
         ? Container(
             child: Center(
             child: Text(
@@ -220,28 +217,6 @@ class SecondWidget {
                   ],
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  // print("step=" + checkoutController.currentStep.value.toString());
-
-                  if (checkoutController.paymentMethod.value == ""
-                      // controller.landmarkDropDownValue == "Select a landmark" ||
-                      // controller.landmarkDropDownValue.value == ""
-                      ) {
-                    Get.snackbar("Alert", "Please select any payment method",
-                        icon: Icon(Icons.person, color: Colors.white),
-                        snackPosition: SnackPosition.BOTTOM,
-                        colorText: Colors.white,
-                        animationDuration: Duration(microseconds: 100),
-                        backgroundColor: Colors.black);
-                  } else {
-                    checkoutController.continued();
-                  }
-                },
-                child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: AppButton(buttonTitle: "Continue").myButton),
-              )
             ],
           ));
   }

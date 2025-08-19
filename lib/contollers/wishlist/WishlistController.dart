@@ -21,6 +21,11 @@ class WishlistController extends GetxController {
     super.onInit();
   }
 
+
+  void update_wishlist() {
+    allWishlist(signInController.user.value);
+  }
+
   void addWishlist(User user, Product product) {
     Future.delayed(Duration(seconds: 1), () async {
       http.Response response = await MyApi.addWishlist(user, product);
@@ -57,7 +62,7 @@ class WishlistController extends GetxController {
     Future.delayed(Duration(seconds: 1), () async {
       http.Response response = await MyApi.allWishlist(user);
 
-      // print(response.body);
+      print(response.body);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         String res = data['res'];

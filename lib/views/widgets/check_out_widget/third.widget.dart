@@ -18,22 +18,20 @@ import 'package:Susani/views/widgets/app_button.dart';
 
 class ThirdWidget {
   final BuildContext context;
-  var appConfigController = Get.put(MyAppConfigController());
-  var signInController = Get.put(SignInController());
-  var controller = Get.put(CartController());
-  var checkoutController = Get.put(CheckoutController());
-  static var addressController = Get.put(AddressController());
-  static var couponController = Get.put(CouponController());
+  var appConfigController = Get.find<MyAppConfigController>();
+  var signInController = Get.find<SignInController>();
+  var controller = Get.find<CartController>();
+  var checkoutController = Get.find<CheckoutController>();
+  static var addressController = Get.find<AddressController>();
+  static var couponController = Get.find<CouponController>();
   var address = Address().obs;
   final couponFieldController = TextEditingController();
   String couponCode = "";
 
   ThirdWidget({required this.context}) {
     couponController.status.value = "";
-    checkoutController.selectedId.value.toString();
-
     for (var add in addressController.addresses) {
-      if (add.id.toString() == checkoutController.selectedId.value.toString()) {
+      if (add.id.toString() == checkoutController.selectedAddress.value.id) {
         address.value = add;
       }
     }
@@ -94,12 +92,13 @@ class ThirdWidget {
                                     "," +
                                     address.value.pincode.toString() +
                                     "," +
-                                    address.value.address_type.toString() +
+                                    address.value.addressType.toString() +
                                     "\n" +
                                     address.value.contact.toString() +
                                     "\n" +
-                                    checkoutController
-                                        .landmarkDropDownValue.value,
+                                    (checkoutController
+                                            .selectedAddress.value.landmark ??
+                                        ''),
                                 style: TextStyle(
                                     fontSize: 14, fontWeight: FontWeight.w300)),
                           ],
@@ -131,7 +130,7 @@ class ThirdWidget {
                             Text(checkoutController.serviceType.value,
                                 style: TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.w700)),
-                             const SizedBox(
+                            const SizedBox(
                               height: 5,
                             ),
                             Text(

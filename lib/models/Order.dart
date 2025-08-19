@@ -37,7 +37,14 @@ class Order {
       this.date_time,
       this.picked_up});
   Order.fromJson(Map<String, dynamic> json) {
-    var address = Address.fromJson(jsonDecode(json["shipping_address"]));
+    final shippingAddressJson = json['shipping_address'];
+    jsonDecode(shippingAddressJson);
+    print("${shippingAddressJson}==========");
+    final address = shippingAddressJson != null && shippingAddressJson != "null"
+        ? Address.fromJson(shippingAddressJson is String
+            ? jsonDecode(shippingAddressJson)
+            : shippingAddressJson)
+        : null;
     var coupon = Coupon.fromJson(jsonDecode(json["coupon"]));
     var ls = jsonDecode(json['products']) as List;
 
@@ -56,6 +63,6 @@ class Order {
     order_status = json['order_status'];
     transaction_id = json['transaction_id'];
     date_time = json['dat_time'];
-    picked_up =json['pickup_otp'];
+    picked_up = json['pickup_otp'];
   }
 }

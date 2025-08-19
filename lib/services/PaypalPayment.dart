@@ -29,7 +29,7 @@ class PaypalPaymentState extends State<PaypalPayment> {
   String? executeUrl;
   String? accessToken;
   PaypalServices services = PaypalServices();
-  var checkoutController = Get.put(CheckoutController());
+  var checkoutController = Get.find<CheckoutController>();
   var cartController = Get.put(CartController());
   var appConfig = Get.put(MyAppConfigController());
   var signInController = Get.put(SignInController());
@@ -149,7 +149,7 @@ class PaypalPaymentState extends State<PaypalPayment> {
 
     String totalAmount = cartController.total.value.toString();
     String subTotalAmount = cartController.subTotal.value.toString();
-    String shippingCost = appConfig.appConfig.shipping_fee.toString();
+    String shippingCost = appConfig.appConfig.value.shipping_fee.toString();
     int shippingDiscountCost = 0;
     String userFirstName = signInController.user.value.name.toString();
     String userLastName = signInController.user.value.last_name.toString();
@@ -261,37 +261,7 @@ class PaypalPaymentState extends State<PaypalPayment> {
               onTap: () => Navigator.pop(context),
             ),
           ),
-          body: WebViewWidget(controller: controller)
-
-          //  WebView(
-          //   initialUrl: checkoutUrl,
-          //   navigationDelegate: (NavigationRequest request) {
-          //     if (request.url.contains(returnURL)) {
-          //       final uri = Uri.parse(request.url);
-          //       final payerID = uri.queryParameters['PayerID'];
-          //       if (payerID != null) {
-          //         services
-          //             .executePayment(
-          //                 Uri.parse(executeUrl!), payerID, accessToken)
-          //             .then((id) {
-          //           // widget.onFinish(id);
-          //           // checkoutController.checkoutOrder(widget.rawdata);
-          //           // Navigator.of(context).pop();
-          //         });
-          //       } else {
-          //         // checkoutController.checkoutOrder(widget.rawdata);
-          //         // Navigator.of(context).pop();
-          //       }
-
-          //       // Navigator.of(context).pop();
-          //     }
-          //     if (request.url.contains(cancelURL)) {
-          //       Navigator.of(context).pop();
-          //     }
-          //     return NavigationDecision.navigate;
-          //   },
-          // ),
-          );
+          body: WebViewWidget(controller: controller));
     } else {
       return Scaffold(
         key: _scaffoldKey,

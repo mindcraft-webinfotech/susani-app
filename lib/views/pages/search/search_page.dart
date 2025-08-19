@@ -62,12 +62,14 @@ class SearchPage extends StatelessWidget {
                                 autofocus: true,
                                 onChanged: (value) {
                                   searchController.searchKey.value = value;
-                                  searchController.searchProduct(value);
+                                  if(searchController.searchKey.value.length >= 3) {
+                                    searchController.searchProduct(value);
+                                  }
                                 },
                                 controller: searchEditFieldController,
                                 decoration: const InputDecoration(
                                     suffixIcon: Icon(Icons.search),
-                                    hintText: "Search Products",
+                                    hintText: "Search Laundry Products",
                                     hintStyle: TextStyle(color: Colors.grey),
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.all(

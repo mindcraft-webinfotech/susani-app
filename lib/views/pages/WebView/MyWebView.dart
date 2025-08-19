@@ -1,91 +1,80 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:Susani/contollers/news_controller/new_full_view_controller.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class MyWebView extends StatefulWidget {
-  var args = Get.arguments;
   @override
-  WebViewState createState() => WebViewState();
+  _MyWebViewState createState() => _MyWebViewState();
 }
 
 final controller = Get.put(NewsFullViewController());
 
-class WebViewState extends State<MyWebView> {
-  late WebViewController _controller;
+class _MyWebViewState extends State<MyWebView> {
+  late InAppWebViewController _webViewController;
   bool isLoading = true;
-
-  final Completer<WebViewController> _controllerCompleter =
-      Completer<WebViewController>();
-
-  @override
-  void initState() {
-    super.initState();
-    // print(Get.arguments.toString());
-    // print(
-    //     "https://kushgods.credofusion.com/newsDetails.php?news_id=${Get.arguments[0]}");
-    // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
-  }
 
   @override
   Widget build(BuildContext context) {
+    var args = Get.arguments;
+
     return Scaffold(
-        appBar: AppBar(
-          leading: GestureDetector(
-              onTap: () {
-                Get.back();
-              },
-              child: const Icon(
-                Icons.arrow_back_ios,
-                size: 20,
-              )),
-          centerTitle: true,
-          title: Text(
-            Get.arguments[1],
-            style: TextStyle(fontSize: 16),
+      appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () {
+            Get.back();
+          },
+          child: const Icon(
+            Icons.arrow_back_ios,
+            size: 20,
           ),
         ),
-        body: SafeArea(
-          child: Stack(children: [
-            WillPopScope(
-              onWillPop: () => _goBack(context),
-              child: Text("Webview upgrade required"),
-              // child: WebView(
-              //   initialUrl: widget.args[0],
-              //   javascriptMode: JavascriptMode.unrestricted,
-              //   onWebViewCreated: (WebViewController webViewController) {
-              //     _controllerCompleter.future
-              //         .then((value) => _controller = value);
-              //     _controllerCompleter.complete(webViewController);
-              //   },
-              //   onPageFinished: (finish) {
-              //     setState(() {
-              //       isLoading = false;
-              //     });
-              //   },
-              // ),
+        centerTitle: true,
+        title: Text(
+          args[1], // Assuming args[1] is the title
+          style: TextStyle(fontSize: 16),
+        ),
+      ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            InAppWebView(
+              initialUrlRequest: URLRequest(url: Uri.parse(args[0])), // Assuming args[0] is the URL
+              onWebViewCreated: (controller) {
+                _webViewController = controller;
+              },
+              onLoadStart: (controller, url) {
+                setState(() {
+                  isLoading = true;
+                });
+              },
+              onLoadStop: (controller, url) async {
+                setState(() {
+                  isLoading = false;
+                });
+              },
             ),
-            isLoading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.black,
-                    ),
-                  )
-                : Stack(),
-          ]),
-        ));
+            if (isLoading)
+              Center(
+                child: CircularProgressIndicator(
+                  color: Colors.black,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
+  // Add back navigation
   Future<bool> _goBack(BuildContext context) async {
-    if (await _controller.canGoBack()) {
-      _controller.goBack();
-      return Future.value(false);
+    if (await _webViewController.canGoBack()) {
+      _webViewController.goBack();
+      return false; // Prevent the default back action
     } else {
       Get.back();
-      return Future.value(true);
+      return true; // Allow the back action in the navigator
     }
   }
 }

@@ -193,7 +193,7 @@ class _MyHomePageState extends State<RazorPayment> {
   final _razorpay = Razorpay();
   String apiKey = 'rzp_live_lWgae2niXTNDM5';
   String apiSecret = 'BJuFDadUj9tukV209ntb2eL5';
-  var check = Get.put(CheckoutController());
+  var check = Get.find<CheckoutController>();
   var cartC = Get.put(CartController());
 
   User user = User();

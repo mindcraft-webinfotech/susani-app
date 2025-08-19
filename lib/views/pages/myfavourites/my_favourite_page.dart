@@ -8,8 +8,10 @@ import 'package:Susani/views/widgets/product_design.dart';
 
 class MyFavouritePage extends StatelessWidget {
   var controller = Get.put(WishlistController());
+
   @override
   Widget build(BuildContext context) {
+    controller.update_wishlist();
     return Scaffold(
       appBar: AppBar(
         leading: GestureDetector(
@@ -64,6 +66,7 @@ class MyFavouritePage extends StatelessWidget {
                             child: Text("Wishlist is empty"),
                           ),
                         ),
+
                 )),
         ),
       ),

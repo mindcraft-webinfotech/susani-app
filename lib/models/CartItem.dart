@@ -14,6 +14,8 @@ class CartItem {
   double? total;
   String? type;
   double? tax;
+  String? selectedCombination ; // Holds selected attribute values
+
   bool? clear_cart = false;
 
   CartItem({
@@ -24,9 +26,11 @@ class CartItem {
     this.total,
     this.tax,
     this.type,
-    this.clear_cart
+    this.clear_cart,
+    this.selectedCombination
   });
   CartItem.fromJson(Map<String, dynamic> json) {
+
     quantity.value = json['quantity'] == "null"
         ? 0
         : int.parse(json['quantity'].toString().trim());
@@ -39,6 +43,7 @@ class CartItem {
         : Product.fromJson(json['product']);
     type = json['type'] == "null" ? "" : json['type'];
     clear_cart = json['clear_cart'] == "null" ? "" : json['clear_cart'];
+    selectedCombination = json['selectedCombination'] == "null" ? "" : json['selectedCombination'];
   }
 
   Map<String, dynamic> toJson() => {
@@ -48,6 +53,7 @@ class CartItem {
         "product": product,
         "tax": tax,
         "type": type,
-        "clear_cart": clear_cart
+        "clear_cart": clear_cart,
+        "selectedCombination": selectedCombination
       };
 }

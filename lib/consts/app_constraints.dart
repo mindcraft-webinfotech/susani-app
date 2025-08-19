@@ -1,7 +1,7 @@
 class AppConstraints {
   static const FIX_NUM = 2022;
-  static const String BASE_URL = "https://susani.in/";
-  // static const String BASE_URL = "https://susani.in/testing/";
+  // static const String BASE_URL = "https://susani.in/";
+  static const String BASE_URL = "https://mindcraftmlm.in/susani/";
 
   static const String DATA_URL = "${BASE_URL}API/V1/GetData.php";
   static const String VENDOR_URL = "${BASE_URL}API/V1/vendor-api.php";
@@ -9,10 +9,12 @@ class AppConstraints {
   static const String DONATION = "${BASE_URL}API/V1/donation.php";
 
   static const String IMAGE_URL = "${BASE_URL}uploads/news/";
+  static const String EcomBanner_Url = "${BASE_URL}API/V1/ecommerce.php";
 
   static const String CAT_IMAGE_URL = "${BASE_URL}uploads/category/";
 
   static const String BANNER_URL = "${BASE_URL}uploads/banner/";
+  static const String ECOMBANNER_URL = "${BASE_URL}uploads/";
 
   static const String PROFILE_URL = "https://susani.in/";
 
@@ -22,6 +24,7 @@ class AppConstraints {
 
   static const String PAYMENT_SUCCESS = "${BASE_URL}capture_payment.php";
   static const String OTP_URL = "${BASE_URL}API/V1/sendOtp.php";
+  static const String VENDOR_API = "${BASE_URL}API/V1/vendor-api.php";
 
   static const String DEFAULIMAGE =
       "https://assets.onlinelabels.com/images/clip-art/Firkin/Faceless%20man-297004_thumb.png";

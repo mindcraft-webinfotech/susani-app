@@ -55,14 +55,15 @@ class ProductPage extends StatelessWidget {
               children: [
                 Expanded(
                     child: TextField(
-
                         onChanged: (value) {
                           print("value ==" + value);
                           productController.productList.clear();
-                          if (value != "")
+                          if (value.length >= 3) {
                             productController.searchProductByKey(value);
-                          else
-                            productController.fetchProduct();
+                          }else{
+                             productController.fetchProduct();
+                           }
+
                         },
                         controller: searchEditFieldController,
                         decoration:  InputDecoration(
@@ -88,7 +89,21 @@ class ProductPage extends StatelessWidget {
                     color: AppColor.backgroundColor,
                     child: Obx(
                       () => Badge(
-                        label: Text(
+                        label:
+                        cartController
+                            .addQuantStatus
+                            .value ==
+                            "Loading"
+                            ?
+                            SizedBox(
+                            height: 10,
+                            width: 10,
+                            child:  CircularProgressIndicator(
+                              color: Colors.white,
+                            ),)
+                       :
+
+                        Text(
                           cartController.totalQuantity.toString(),
                           style: TextStyle(color: AppColor.backgroundColor),
                         ),
@@ -168,8 +183,8 @@ class ProductPage extends StatelessWidget {
             ]),
         body: Column(
           children: [
-            Text(
-              "${productController.type.value} Products",),
+            // Text(
+            //   "${productController.type.value} Products",),
             // ---------------------------------- categories
            Padding(
              padding: const EdgeInsets.all(8.0),
@@ -225,10 +240,11 @@ class ProductPage extends StatelessWidget {
                           itemBuilder: (BuildContext context, int index) =>
                               GestureDetector(
                             onTap: () {
-                              print("object");
-                              //controller.loadProductDetails(controller.productList[index]);
-                              Get.toNamed(MyPagesName.productFullView,
-                                  arguments: controller.productList[index].id);
+                              print( "controller.productList[index].id!");
+                              print( controller.productList[index].id!);
+
+                              Get.toNamed(MyPagesName.productFullView, arguments: controller.productList[index].id);
+
                             },
                             child: ProductDesign(
                                     context: context,

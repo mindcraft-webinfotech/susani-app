@@ -5,8 +5,8 @@ import 'package:Susani/contollers/checkout_controller/checkout_controller.dart';
 import 'package:Susani/views/widgets/check_out_widget/AddressFormFields.dart';
 
 class AddressForm {
-  static var controller = Get.put(CheckoutController());
-  static var addressController = Get.put(AddressController());
+  static var controller = Get.find<CheckoutController>();
+  static var addressController = Get.find<AddressController>();
 
   static Container get FormContainer => Container(
           child: GestureDetector(
@@ -24,8 +24,9 @@ class AddressForm {
                 GestureDetector(
                     onTap: () {
                       controller.showNewAddressForm.value = false;
-                      print(" controller.showNewAddressForm");
-                      print( controller.showNewAddressForm.value);
+                      controller.showNewAddressForm.refresh();
+                      print(" controller.showNewAddressForm address form");
+                      print(controller.showNewAddressForm.value);
                     },
                     child: CircleAvatar(radius: 15, child: Icon(Icons.close)))
               ],

@@ -23,12 +23,9 @@ class OrderSuccess extends StatefulWidget {
 }
 
 class _OrderScuccessState extends State<OrderSuccess> {
-  DashboardController dashboardController = Get.put(DashboardController());
-  CartController cartController = Get.put(CartController());
-  CheckoutController checkoutController = Get.put(CheckoutController());
-  var signIn = Get.put(SignInController());
-  var addC = Get.put(AddressController());
-
+  DashboardController dashboardController = Get.find<DashboardController>();
+  CartController cartController = Get.find<CartController>();
+  CheckoutController checkoutController = Get.find<CheckoutController>();
   Future<bool> _onWillPop() async {
     return false;
   }
@@ -36,11 +33,7 @@ class _OrderScuccessState extends State<OrderSuccess> {
   void clean() {
     // -----------------------------clearing checkout
     checkoutController.currentStep.value = 0;
-    checkoutController.showNewAddressForm.value = false;
-    checkoutController.selectedId.value = 0;
-
     checkoutController.paymentMethod.value = "";
-    checkoutController.selectedAddress.value = new Address();
     checkoutController.status.value = "";
     checkoutController.order_id.value = "";
     // -------------------clearing cart
@@ -51,8 +44,8 @@ class _OrderScuccessState extends State<OrderSuccess> {
     cartController.promoCodeValue.value = 0.0;
     cartController.coupon.value = new Coupon();
     cartController.cartItems.clear();
-    checkoutController.getAllLandMarks(
-        int.parse(signIn.id.value), addC.addresses[0].pincode!);
+    checkoutController.landMarksList.clear();
+    checkoutController.dateTime.value = DateTime.utc(1970);
   }
 
   @override
@@ -100,7 +93,6 @@ class _OrderScuccessState extends State<OrderSuccess> {
                         child: Html(
                             onAnchorTap: (url, attributes, element) {
                               clean();
-
                               Get.offNamed(MyPagesName.myOrders);
                             },
                             data: "You order <strong>" +

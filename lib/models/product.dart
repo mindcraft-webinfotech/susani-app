@@ -22,6 +22,7 @@ class Product {
   String? delStatus;
   String? date;
   String? images;
+  String? image;
   String? tags;
   String? other_info;
   String? description;
@@ -29,7 +30,8 @@ class Product {
   var isInCart = false.obs;
   List<dynamic>? img;
   var quant = 1.obs;
-
+  CombinationData? combinationData;
+  List<AllCombination>? allCombination;
 
   Product(
       {this.id,
@@ -48,11 +50,12 @@ class Product {
       this.delStatus,
       this.date,
       this.images,
+      this.image,
       this.tags,
       this.description,
       this.other_info,
-      this.img,this.tax
-      });
+      this.img,
+      this.tax});
 
   Product.fromJson(Map<String, dynamic> json) {
     id = !json.containsKey("id")
@@ -71,7 +74,7 @@ class Product {
         ? "0"
         : json['mrp'] == "null"
             ? ""
-            : json['mrp'];
+            : json['mrp'].toString();
 
     gst = !json.containsKey("gst")
         ? "0"
@@ -101,7 +104,7 @@ class Product {
         ? "0"
         : json['price'] == "null"
             ? ""
-            : json['price'];
+            : json['price'].toString();
 
     size = !json.containsKey("size")
         ? "0"
@@ -143,6 +146,13 @@ class Product {
         : json['images'] == "null"
             ? ""
             : json['images'];
+
+    image = !json.containsKey("image")
+        ? "0"
+        : json['image'] == "null"
+            ? ""
+            : json['image'];
+
     tags = !json.containsKey("tags")
         ? "0"
         : json['tags'] == "null"
@@ -168,6 +178,15 @@ class Product {
         : json['img'] == "null"
             ? List.empty()
             : json['img'] as List<dynamic>;
+    combinationData = json['combination_data'] != null
+        ? new CombinationData.fromJson(json['combination_data'])
+        : null;
+    if (json['all_combination'] != null) {
+      allCombination = <AllCombination>[];
+      json['all_combination'].forEach((v) {
+        allCombination!.add(new AllCombination.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() => {
@@ -182,6 +201,100 @@ class Product {
         "unit": unit.toString(),
         "quant": quant.toString(),
         "img": img!,
-        "tax": tax!
+        "image": image!,
+        "tax": tax!,
+        "combination_data":
+            combinationData != null ? combinationData!.toJson() : null,
+        "all_combination": allCombination != null
+            ? allCombination!.map((v) => v.toJson()).toList()
+            : null
       };
+}
+
+class CombinationData {
+  String? id;
+  String? combination;
+  String? price;
+  String? quantity;
+  String? image;
+  String? productId;
+
+  CombinationData(
+      {this.id,
+      this.combination,
+      this.price,
+      this.quantity,
+      this.image,
+      this.productId});
+
+  CombinationData.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    combination = json['combination'];
+    price = json['price'];
+    quantity = json['quantity'];
+    image = json['image'];
+    productId = json['product_id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['combination'] = this.combination;
+    data['price'] = this.price;
+    data['quantity'] = this.quantity;
+    data['image'] = this.image;
+    data['product_id'] = this.productId;
+    return data;
+  }
+}
+
+class AllCombination {
+  String? id;
+  String? name;
+  List<Values>? values;
+
+  AllCombination({this.id, this.name, this.values});
+
+  AllCombination.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    if (json['values'] != null) {
+      values = <Values>[];
+      json['values'].forEach((v) {
+        values!.add(new Values.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['name'] = this.name;
+    if (this.values != null) {
+      data['values'] = this.values!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class Values {
+  String? id;
+  String? value;
+  bool? selected;
+
+  Values({this.id, this.value, this.selected});
+
+  Values.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    value = json['value'];
+    selected = json['selected'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['value'] = this.value;
+    data['selected'] = this.selected;
+    return data;
+  }
 }

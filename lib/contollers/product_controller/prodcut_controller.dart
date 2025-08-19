@@ -12,8 +12,9 @@ import 'package:Susani/services/remote_servies.dart';
 import '../../models/size_model.dart';
 
 class ProductController extends GetxController {
-  var type = "laundry".obs;
   var user_id = "".obs;
+  var type = "laundry".obs;
+
   var productList = <Product>[].obs;
   var searchedProductList = <Product>[].obs;
   var slder = <String>[].obs;
@@ -61,7 +62,10 @@ class ProductController extends GetxController {
       // If sizes are provided as a string, try to parse it
       // Example: "10, 20, 30" or "[10, 20, 30]"
       sizes = sizes.replaceAll(RegExp(r'[\[\]" ]'), ''); // Remove brackets
-      options.value = sizes.split(',').map((value) => SizeModel(value: value.trim())).toList();
+      options.value = sizes
+          .split(',')
+          .map((value) => SizeModel(value: value.trim()))
+          .toList();
     }
 
     // Set the selected size to the first option if available
@@ -78,96 +82,94 @@ class ProductController extends GetxController {
     super.onInit();
   }
 
-  void fetchProduct({bool onscroll = false}) {
+  Future<void> fetchProduct({bool onscroll = false}) async {
     if (onscroll) isLoadingbyfetch.value = true;
 
-    Future.delayed(Duration(seconds: 1), () async {
-      if (onscroll) {
-      } else {
-        isLoaded.value = false;
-        startPoint.value = 0;
-      }
-      print("start point = " + startPoint.value.toString());
-      print("isloaded = " + isLoaded.value.toString());
-      http.Response response =
-          await MyApi.getproduct(startPoint.value, pageSize,type.value,user_id.value);
-      print("===============================product");
-      print(response.body);
-      print("===============================product");
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        String res = data['res'];
-        String msg = data['msg'];
-        if (res == "success") {
-          var re = data['data'] as List;
-          print(re);
-          isError.value = false;
-          isLoading.value = false;
-          isLoadingbyfetch.value = false;
-          if (onscroll && !isLoaded.value) {
-            var newlist = re.map<Product>((e) => Product.fromJson(e)).toList();
-            if (newlist.length < pageSize) {
-              if (!isLoaded.value) {
-                newlist.forEach((element) {
-                  productList.add(element);
-                });
-              }
-              startPoint.value = int.parse(newlist[0].id!);
-              print("assigning --1" + startPoint.value.toString());
-              isLoaded.value = true;
-            } else {
-              if (!isLoaded.value) {
-                newlist.forEach((element) {
-                  productList.add(element);
-                });
-              }
-              startPoint.value = int.parse(newlist[0].id!);
-              print("assigning --1" + startPoint.value.toString());
+    if (onscroll) {
+    } else {
+      isLoaded.value = false;
+      startPoint.value = 0;
+    }
+    print("start point = " + startPoint.value.toString());
+    print("isloaded = " + isLoaded.value.toString());
+    http.Response response = await MyApi.getproduct(
+        startPoint.value, pageSize, type.value, user_id.value);
+    print("===============================product");
+    print(response.body);
+    print("===============================product");
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      String res = data['res'];
+      String msg = data['msg'];
+      if (res == "success") {
+        var re = data['data'] as List;
+        print(re);
+        isError.value = false;
+        isLoading.value = false;
+        isLoadingbyfetch.value = false;
+        if (onscroll && !isLoaded.value) {
+          var newlist = re.map<Product>((e) => Product.fromJson(e)).toList();
+          if (newlist.length < pageSize) {
+            if (!isLoaded.value) {
+              newlist.forEach((element) {
+                productList.add(element);
+              });
             }
+            startPoint.value = int.parse(newlist[0].id!);
+            print("assigning --1" + startPoint.value.toString());
+            isLoaded.value = true;
           } else {
-            productList.value =
-                re.map<Product>((e) => Product.fromJson(e)).toList();
-
-            startPoint.value = int.parse(productList[0].id!);
-            print("assigning --2" + startPoint.value.toString());
-          }
-
-          switch (sortIndex.value) {
-            case 0:
-              {
-                sortProductByLatest(productList);
-                break;
-              }
-            case 1:
-              {
-                sortProductByAtoZ(productList);
-                break;
-              }
-            case 2:
-              {
-                sortProductByZtoA(productList);
-                break;
-              }
-            case 3:
-              {
-                sortProductByASC(productList);
-                break;
-              }
-            case 4:
-              {
-                sortProductByDESC(productList);
-                break;
-              }
+            if (!isLoaded.value) {
+              newlist.forEach((element) {
+                productList.add(element);
+              });
+            }
+            startPoint.value = int.parse(newlist[0].id!);
+            print("assigning --1" + startPoint.value.toString());
           }
         } else {
-          isLoadingbyfetch.value = false;
-          isError.value = true;
+          productList.value =
+              re.map<Product>((e) => Product.fromJson(e)).toList();
+
+          startPoint.value = int.parse(productList[0].id!);
+          print("assigning --2" + startPoint.value.toString());
+        }
+
+        switch (sortIndex.value) {
+          case 0:
+            {
+              sortProductByLatest(productList);
+              break;
+            }
+          case 1:
+            {
+              sortProductByAtoZ(productList);
+              break;
+            }
+          case 2:
+            {
+              sortProductByZtoA(productList);
+              break;
+            }
+          case 3:
+            {
+              sortProductByASC(productList);
+              break;
+            }
+          case 4:
+            {
+              sortProductByDESC(productList);
+              break;
+            }
         }
       } else {
+        isLoadingbyfetch.value = false;
         isError.value = true;
-        throw Exception('Failed to load data');
       }
-    });
+    } else {
+      isError.value = true;
+      throw Exception('Failed to load data');
+    }
   }
 
   void searchProductByKey(String key, {bool onscroll = false}) {
@@ -181,8 +183,8 @@ class ProductController extends GetxController {
       }
       print("start point = " + startPoint.value.toString());
       print("isloaded = " + isLoaded.value.toString());
-      http.Response response =
-          await MyApi.searchproduct(startPoint.value, pageSize, key,type.value,user_id.value);
+      http.Response response = await MyApi.searchproduct(
+          startPoint.value, pageSize, key, type.value, user_id.value);
       print("===============================product");
       print(response.body);
       print("===============================product");
@@ -296,18 +298,19 @@ class ProductController extends GetxController {
   }
 
   RxList<Product> fetchProductByCategory(int categoryId) {
+    print("fetchProductByCategory");
     isLoading.value = true;
     productList.clear();
-    Future.delayed(Duration(seconds: 1), () async {
-      http.Response response = await MyApi.getProductBycategory(categoryId,type.value,user_id.value);
+    Future.delayed(Duration(milliseconds: 1), () async {
+      http.Response response = await MyApi.getProductBycategory(
+          categoryId, type.value, user_id.value);
+      print("---------------------------------" + categoryId.toString());
+      print(response.body);
+      print("-------------------------------");
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-        print("---------------------------------" + categoryId.toString());
-        print(data);
-        print("-------------------------------");
         String res = data['res'];
-        isLoading.value = false;
         String msg = data['msg'];
         if (res == "success") {
           var re = data['data'] as List;
@@ -315,6 +318,7 @@ class ProductController extends GetxController {
           isError.value = false;
           productList.value =
               re.map<Product>((e) => Product.fromJson(e)).toList();
+          isLoading.value = false;
         } else {
           isError.value = true;
           print('Failed to load data ' + msg);
@@ -331,7 +335,8 @@ class ProductController extends GetxController {
   RxList<Product> searchProductByCategory(int categoryId) {
     searchStatus.value = "Searching";
     Future.delayed(Duration(seconds: 1), () async {
-      http.Response response = await MyApi.getProductBycategory(categoryId,type.value,user_id.value);
+      http.Response response = await MyApi.getProductBycategory(
+          categoryId, type.value, user_id.value);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         String res = data['res'];
@@ -472,6 +477,7 @@ class ProductController extends GetxController {
   @override
   void dispose() {
     scroll.dispose();
+    productList.clear();
     super.dispose();
   }
 }

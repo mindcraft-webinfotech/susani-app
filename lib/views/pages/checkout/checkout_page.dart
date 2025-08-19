@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:Susani/consts/app_constraints.dart';
 import 'package:Susani/models/Landmarks.dart';
+import 'package:Susani/models/product.dart';
+import 'package:Susani/views/pages/WebView/MyWebView.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:Susani/contollers/address_controller/address_controller.dart';
@@ -17,16 +19,12 @@ import 'package:Susani/views/widgets/check_out_widget/second_widget.dart';
 import 'package:Susani/views/widgets/check_out_widget/third.widget.dart';
 
 class CheckoutPage extends StatefulWidget {
-
-
-
-
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  var controller = Get.put(CheckoutController());
+  var controller = Get.find<CheckoutController>();
 
   var signInController = Get.put(SignInController());
 
@@ -34,25 +32,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   var appConfigController = Get.put(MyAppConfigController());
 
-  var addressController = Get.put(AddressController());
-
+  var addressController = Get.find<AddressController>();
 
   @override
   void initState() {
     super.initState();
-    addressController.loadAddress(signInController.user.value);
-  }
-
-
-  @override
-  void dispose() {
-    addressController.dispose();
-    super.dispose();
+    controller.isDateSelected.value = false;
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -62,7 +51,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
       ),
       body: Column(children: [
-
         Expanded(
             child: Obx(
           () => Stepper(
@@ -70,14 +58,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
             type: StepperType.horizontal,
             onStepTapped: (step) {
               FocusScope.of(context).unfocus();
-              print(step);
               if (step == 1) {
-                print(
-                    "${controller.landmarkDropDownValue.value} ----- ${controller.selectedId.value}---");
-                if (controller.selectedId.value != "" ||
-                    controller.landmarkDropDownValue.value ==
-                        "Select a landmark" ||
-                    controller.landmarkDropDownValue.value == "") {
+                final startOfToday = DateTime(
+                  DateTime.now().year,
+                  DateTime.now().month,
+                  DateTime.now().day,
+                );
+                var isPast = controller.dateTime.value.isBefore(startOfToday);
+                if (controller.selectedAddress.value.id == "") {
                   Get.snackbar("Alert", "Please select an address and landmark",
                       icon: Icon(Icons.person, color: Colors.white),
                       snackPosition: SnackPosition.BOTTOM,
@@ -85,7 +73,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       animationDuration: Duration(microseconds: 100),
                       backgroundColor: Colors.black);
                 } else {
-                  controller.tapped(step);
+                  if (isPast) {
+                    Get.snackbar("Alert", "Please select a delivery date",
+                        icon: Icon(Icons.person, color: Colors.white),
+                        snackPosition: SnackPosition.BOTTOM,
+                        colorText: Colors.white,
+                        animationDuration: Duration(microseconds: 100),
+                        backgroundColor: Colors.black);
+                  } else {
+                    controller.tapped(step);
+                  }
                 }
               } else if (step == 2) {
                 if (controller.paymentMethod.value == "") {
@@ -102,8 +99,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 controller.tapped(step);
               }
             },
-            // currentStep: controller.currentStep.value,
-            // onStepContinue: controller.continued(),
+
             steps: [
               Step(
                   isActive: controller.currentStep == 0 ? true : false,
@@ -111,24 +107,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     "Personal Info",
                     style: TextStyle(fontSize: 12),
                   ),
-                  // subtitle: Text(
-                  //   "Perisonal Info",
-                  //   style: TextStyle(fontSize: 10),
-                  // ),
-
-                  content:
-                      // new Container(child: Text("hello"))),
-                      new FirstWidget(context: context).firstWidget),
+                  content: new FirstWidget(context: context).firstWidget),
               Step(
                   isActive: controller.currentStep == 1 ? true : false,
                   title: Text(
                     'Payment',
                     style: TextStyle(fontSize: 12),
                   ),
-                  // subtitle: Text(
-                  //   "Payment",
-                  //   style: TextStyle(fontSize: 10),
-                  // ),
                   content: SecondWidget(context: context).secondWidget),
               Step(
                   isActive: controller.currentStep == 2 ? true : false,
@@ -136,10 +121,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     "Confirmation",
                     style: TextStyle(fontSize: 12),
                   ),
-                  // subtitle: Text(
-                  //   "Confirmation",
-                  //   style: TextStyle(fontSize: 10),
-                  // ),
                   content: ThirdWidget(context: context).thirdWidget)
             ],
             controlsBuilder: (context, details) {
@@ -151,6 +132,68 @@ class _CheckoutPageState extends State<CheckoutPage> {
             // }
           ),
         )),
+        Obx(
+          () => controller.currentStep == 2
+              ? Container()
+              : controller.showNewAddressForm.value
+                  ? Container()
+                  : GestureDetector(
+                      onTap: () {
+                        if (controller.currentStep == 1) {
+                          if (controller.paymentMethod.value == "") {
+                            Get.snackbar(
+                                "Alert", "Please select any payment method",
+                                icon: Icon(Icons.person, color: Colors.white),
+                                snackPosition: SnackPosition.BOTTOM,
+                                colorText: Colors.white,
+                                animationDuration: Duration(microseconds: 100),
+                                backgroundColor: Colors.black);
+                          } else {
+                            controller.continued();
+                          }
+                        } else if (controller.currentStep == 0) {
+                          final startOfToday = DateTime(
+                            DateTime.now().year,
+                            DateTime.now().month,
+                            DateTime.now().day,
+                          );
+                          var isPast =
+                              controller.dateTime.value.isBefore(startOfToday);
+                          if (controller.selectedAddress.value.id.toString() ==
+                                  "" ||
+                              controller.selectedAddress.value.id.toString() ==
+                                  "null" ||
+                              controller.landmarkDropDownValue.value
+                                      .toString() ==
+                                  "Select a landmark") {
+                            Get.snackbar("Alert",
+                                " Please select an address and landmark in edit address",
+                                icon: Icon(Icons.person, color: Colors.white),
+                                snackPosition: SnackPosition.BOTTOM,
+                                colorText: Colors.white,
+                                animationDuration: Duration(microseconds: 100),
+                                backgroundColor: Colors.black);
+                          } else {
+                            if (isPast) {
+                              Get.snackbar(
+                                  "Alert", "Please select a delivery date",
+                                  icon: Icon(Icons.person, color: Colors.white),
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  colorText: Colors.white,
+                                  animationDuration:
+                                      Duration(microseconds: 100),
+                                  backgroundColor: Colors.black);
+                            } else {
+                              controller.continued();
+                            }
+                          }
+                        }
+                      },
+                      child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: AppButton(buttonTitle: "Continue").myButton),
+                    ),
+        ),
         Obx(
           () => controller.currentStep != 2
               ? Container()
@@ -252,13 +295,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       child: Text(
                                         "+ \₹" +
                                             (cartController.subTotal.value <
-                                                        double.parse(
-                                                            appConfigController
+                                                        double.parse(appConfigController
+                                                                    .appConfig
+                                                                    .value
+                                                                    .no_shipping_charge_criteria_amount ==
+                                                                null
+                                                            ? "0"
+                                                            : appConfigController
                                                                 .appConfig
+                                                                .value
                                                                 .no_shipping_charge_criteria_amount
                                                                 .toString())
                                                     ? appConfigController
-                                                        .appConfig.shipping_fee!
+                                                        .appConfig
+                                                        .value
+                                                        .shipping_fee!
                                                         .toStringAsFixed(1)
                                                     : "0")
                                                 .toString(),
@@ -406,39 +457,36 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 child: GestureDetector(
                                   onTap: () {
                                     if (!controller.orderProcessStarted.value) {
-                                      print("testing----->1");
                                       if (signInController.id.value.trim() !=
                                               "null" &&
                                           signInController.id.value.trim() !=
                                               "") {
-                                        print("testing----->2");
                                         var jsonarr = [];
 
                                         cartController.cartItems
                                             .forEach((element) {
+                                          Product product = element.product!;
+                                          product.size = '';
+                                          element.product = product;
                                           jsonarr.add(element);
                                         });
                                         if (controller.status.value ==
                                             "Loading") {
-                                          print("testing----->3");
                                           CommonTool().showInSnackBar(
                                             "Order is processing",
                                             context,
                                             bgcolor: Colors.black87,
                                           );
                                         } else {
-                                          print("testing----->4");
                                           Map<String, dynamic> rawdata =
                                               cartController.toJson(jsonarr);
                                           controller.checkoutOrder(
                                               rawdata, 2, context);
                                         }
                                       } else {
-                                        print("testing----->5");
                                         Get.toNamed(MyPagesName.SignIn);
                                       }
                                     } else {
-                                      print("testing----->6");
                                       CommonTool().showInSnackBar(
                                         "Order is processing",
                                         context,

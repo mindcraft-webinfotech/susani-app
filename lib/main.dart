@@ -8,19 +8,25 @@ import 'package:Susani/consts/app_color.dart';
 import 'package:Susani/consts/app_theme.dart';
 import 'package:Susani/utils/routes_pages/pages_name.dart';
 import 'package:Susani/utils/routes_pages/routes_pages.dart';
+import 'package:upgrader/upgrader.dart';
+import 'ConnectivityController.dart';
 
 Future<void> main() async {
   //XIcons.register("namespace", CustomIcons.mapping);
+
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
       statusBarColor: AppColor.backgroundColor,
       statusBarBrightness: Brightness.dark,
       statusBarIconBrightness: Brightness.dark));
   WidgetsFlutterBinding.ensureInitialized();
+  await Upgrader.clearSavedSettings();
 
   if (Platform.isAndroid) {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
-  runApp(const MyApp());
+  runApp(
+    const MyApp(),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -28,11 +34,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(ConnectivityController());
+
     return GetMaterialApp(
-        title: "Susani",
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.appTheme,
-        initialRoute: MyPagesName.splashFile,
-        getPages: MyPages.list);
+      title: "Susani",
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.appTheme,
+      initialRoute: MyPagesName.splashFile,
+      getPages: MyPages.list,
+    );
   }
 }

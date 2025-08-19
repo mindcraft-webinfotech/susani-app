@@ -11,6 +11,7 @@ class MyPagesName {
   static const String productFullView = "/productFullViewPage";
   static const String category_product = "/category_product";
   static const String checkoutPage = "/checkoutPage";
+  static const String ecom_checkoutPage = "/ecom_checkoutPage";
   static const String SignUp = "/SignUp";
   static const String SignIn = "/Signin";
   static const String OrderSuccess = "/OrderSuccess";

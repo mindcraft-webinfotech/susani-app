@@ -16,8 +16,17 @@ class SearchControllerone extends GetxController {
   var searchKey = "".obs;
   @override
   void onInit() {
+    choices.clear();
     Products.clear();
     super.onInit();
+  }
+  @override
+  void dispose() {
+    choices.clear();
+    // TODO: implement dispose
+    Products.clear();
+    super.dispose();
+
   }
 
   void searchCategory(String categoryname) {

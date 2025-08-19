@@ -1,3 +1,5 @@
+// import 'dart:ffi'; // Removed to resolve 'Size' conflict
+
 import 'package:Susani/consts/app_color.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +14,9 @@ import '../../contollers/signin/SignInController.dart';
 class AddressCardDesign {
   final BuildContext context;
   final int index;
-  var addressController = Get.put(AddressController());
-  var checkoutController = Get.put(CheckoutController());
-  var signinController = Get.put(SignInController());
+  var addressController = Get.find<AddressController>();
+  var checkoutController = Get.find<CheckoutController>();
+  var signinController = Get.find<SignInController>();
   final void Function(Address) callback;
 
   AddressCardDesign(
@@ -27,162 +29,245 @@ class AddressCardDesign {
         () => addressController.addresses.length <= 0
             ? Container()
             : Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    callback(
-                                        addressController.addresses[index]);
-                                    print("Passing data" +
-                                        addressController.addresses[index]
-                                            .toString());
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Icon(FontAwesomeIcons.edit,
-                                          size: 20,
-                                          color: AppColor.bottomitemColor2),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      Text(
-                                          addressController
-                                              .addresses[index].name
-                                              .toString(),
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600)),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () async {
+                    checkoutController.selectedAddress.refresh();
+                    checkoutController.selectedAddress.value =
+                        addressController.addresses[index];
+                    checkoutController.selectedAddress.refresh();
+
+                    checkoutController.dateTime.value = DateTime.utc(1970);
+
+                    await checkoutController.getAllLandMarks(
+                        int.parse(signinController.id.value),
+                        addressController.addresses[index].pincode ?? '');
+                    checkoutController.landmarkDropDownValue.value =
+                        checkoutController.selectedAddress.value.landmark ?? '';
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Name',
-                                          style: TextStyle(
+                                    // Name/Contact
+                                    RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: 'Name/Contact: ',
+                                            style: TextStyle(
                                               color: AppColor.bottomitemColor1,
                                               fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          'City',
-                                          style: TextStyle(
-                                              color: AppColor.bottomitemColor1,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: addressController
+                                                    .addresses[index].name
+                                                    .toString() +
+                                                '/' +
+                                                addressController
+                                                    .addresses[index].contact
+                                                    .toString(),
+                                            style: TextStyle(
+                                              color: AppColor.iconColor2,
                                               fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          'Pin',
-                                          style: TextStyle(
-                                              color: AppColor.bottomitemColor1,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          'Contact',
-                                          style: TextStyle(
-                                              color: AppColor.bottomitemColor1,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      softWrap: true,
                                     ),
-                                    SizedBox(
-                                      width: 10,
+                                    SizedBox(height: 4),
+                                    // City/Address
+                                    RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: 'City/Address: ',
+                                            style: TextStyle(
+                                              color: AppColor.bottomitemColor1,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: addressController
+                                                    .addresses[index].city
+                                                    .toString() +
+                                                "/" +
+                                                addressController
+                                                    .addresses[index].address
+                                                    .toString(),
+                                            style: TextStyle(
+                                              color: AppColor.iconColor2,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      softWrap: true,
                                     ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          addressController
-                                              .addresses[index].address
-                                              .toString(),
-                                          style: TextStyle(
+                                    SizedBox(height: 4),
+                                    // Pin
+                                    RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: 'Pin: ',
+                                            style: TextStyle(
+                                              color: AppColor.bottomitemColor1,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: addressController
+                                                .addresses[index].pincode
+                                                .toString(),
+                                            style: TextStyle(
                                               color: AppColor.iconColor2,
                                               fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          addressController
-                                              .addresses[index].city
-                                              .toString(),
-                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      softWrap: true,
+                                    ),
+                                    SizedBox(height: 4),
+                                    // Landmark
+                                    RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: 'Landmark: ',
+                                            style: TextStyle(
+                                              color: AppColor.bottomitemColor1,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: addressController
+                                                .addresses[index].landmark
+                                                .toString(),
+                                            style: TextStyle(
                                               color: AppColor.iconColor2,
                                               fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          addressController
-                                              .addresses[index].pincode
-                                              .toString(),
-                                          style: TextStyle(
-                                              color: AppColor.iconColor2,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          addressController
-                                              .addresses[index].contact
-                                              .toString(),
-                                          style: TextStyle(
-                                              color: AppColor.iconColor2,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      softWrap: true,
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                            Obx(
-                              () => Radio(
-                                  value: addressController.addresses[index].id
-                                      .toString(),
-                                  groupValue: checkoutController
-                                      .selectedId.value
-                                      .toString(),
-                                  onChanged: (value) {
-                                    print(
-                                        "----------------------??????${value}");
-                                    checkoutController.selectedId.value =
-                                        int.parse(value.toString());
-                                    print("radio tapped Id--->" +
-                                        checkoutController.selectedId.value
-                                            .toString());
-                                    checkoutController.selectedAddress.value =
-                                        addressController.addresses[index];
-                                    print("radio tapped Address--->" +
-                                        checkoutController.selectedAddress.value
-                                            .toString());
-                                    checkoutController.getAllLandMarks(
-                                        int.parse(signinController.id.value),
-                                        addressController
-                                            .addresses[index].pincode!);
-                                  }),
-                            )
-                          ],
+                              ),
+                              Column(
+                                children: [
+                                  Obx(
+                                    () => Radio(
+                                      value: checkoutController
+                                          .selectedAddress.value.id
+                                          .toString(),
+                                      groupValue: checkoutController
+                                          .selectedAddress.value.id,
+                                      onChanged: (value) async {
+                                        checkoutController.dateTime.value =
+                                            DateTime.utc(1970);
+                                        checkoutController
+                                                .selectedAddress.value =
+                                            addressController.addresses[index];
+                                        await checkoutController
+                                            .getAllLandMarks(
+                                                int.parse(
+                                                    signinController.id.value),
+                                                addressController
+                                                        .addresses[index]
+                                                        .pincode ??
+                                                    '')
+                                            .then(
+                                          (value) {
+                                            addressController.loadAddress(
+                                                signinController.user.value);
+                                          },
+                                        );
+                                        checkoutController.landmarkDropDownValue
+                                            .value = checkoutController
+                                                .selectedAddress
+                                                .value
+                                                .landmark ??
+                                            '';
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  GestureDetector(
+                                    behavior: HitTestBehavior.translucent,
+                                    onTap: () async {
+                                      callback(
+                                          addressController.addresses[index]);
+                                      await checkoutController.getAllLandMarks(
+                                          int.parse(signinController
+                                              .user.value.id
+                                              .toString()),
+                                          addressController
+                                              .addresses[index].pincode
+                                              .toString());
+                                      checkoutController.landmarkDropDownValue
+                                          .value = addressController
+                                              .addresses[index].landmark ??
+                                          '';
+                                      print("On click of edit ");
+                                      print(addressController.addresses);
+                                    },
+                                    child: TextButton(
+                                      style: TextButton.styleFrom(
+                                        backgroundColor:
+                                            AppColor.bottomitemColor2,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                        minimumSize: const Size(36, 24),
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                      onPressed:
+                                          null, // Disabled to prevent double tap
+                                      child: const Text(
+                                        'Edit',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -226,7 +311,7 @@ class AddressCardDesign {
                                         .toString() +
                                     "," +
                                     addressController
-                                        .addresses[index].address_type
+                                        .addresses[index].addressType
                                         .toString() +
                                     "\n" +
                                     addressController.addresses[index].contact
@@ -246,17 +331,18 @@ class AddressCardDesign {
                         () => Radio(
                             value: addressController.addresses[index].id
                                 .toString(),
-                            groupValue:
-                                checkoutController.selectedId.value.toString(),
+                            groupValue: checkoutController
+                                .selectedAddress.value.id
+                                .toString(),
                             onChanged: (value) {
-                              // print(value);
-                              checkoutController.selectedId.value =
-                                  int.parse(value.toString());
+                              addressController.selectedAddress.value =
+                                  "${addressController.addresses[index].name} ,${addressController.addresses[index].city},${addressController.addresses[index].pincode}";
                               checkoutController.selectedAddress.value =
                                   addressController.addresses[index];
-
-                              print("checkoutController.selectedId.value");
-                              print(checkoutController.selectedId.value);
+                              checkoutController.getAllLandMarks(
+                                  int.parse(signinController.id.value),
+                                  addressController.addresses[index].pincode
+                                      .toString());
                             }),
                       )
                     ],

@@ -1,13 +1,16 @@
 import 'dart:convert';
 
 import 'package:Susani/consts/app_constraints.dart';
+import 'package:Susani/contollers/signin/SignInController.dart';
 import 'package:Susani/models/Landmarks.dart';
 import 'package:Susani/views/pages/WebView/MyWebView.dart';
+import 'package:Susani/views/pages/ecom/utils/color_data.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:Susani/models/Address.dart';
 import 'package:Susani/services/remote_servies.dart';
+import 'package:get/get_rx/get_rx.dart';
 import 'package:http/http.dart' as http;
 import 'package:Susani/utils/routes_pages/pages_name.dart';
 import '../../services/PayUMoney.dart';
@@ -15,25 +18,28 @@ import '../../services/PayUMoney.dart';
 class CheckoutController extends GetxController {
   var currentStep = 0.obs;
   var showNewAddressForm = false.obs;
-  var selectedId = 0.obs;
   var paymentMethod = "".obs;
   var selectedAddress = new Address().obs;
   var status = "".obs;
   var order_id = "".obs;
   var orderProcessStarted = false.obs;
-  var dateTime = new DateTime.now().obs;
+  var dateTime = new DateTime.utc(1970).obs;
   var serviceType = AppConstraints.type_for_pin_unavailable.keys.last.obs;
   var landMarksList = <Landmarks>[].obs;
   var landmarknames = <String>[].obs;
   var landmarkDropDownValue = "".obs;
+  var signinController = Get.put(SignInController());
+
+  RxBool isDateSelected = false.obs;
+
+  var pincodeVerified = false.obs;
 
   tapped(int step) {
     currentStep.value = step;
-    // print(currentStep);
   }
 
   continued() {
-    currentStep < 2 ? currentStep.value += 1 : null;
+    currentStep.value = currentStep.value < 2 ? currentStep.value += 1 : 0;
   }
 
   cancel() {
@@ -85,41 +91,82 @@ class CheckoutController extends GetxController {
     });
   }
 
-  void getAllLandMarks(int userid, String zip) {
+  Future<void> getAllLandMarks(int userid, String zip) async {
     status.value = "Loading";
     landmarknames.clear();
     landMarksList.clear();
     landmarkDropDownValue.value = "";
-    Future.delayed(Duration(seconds: 1), () async {
-      http.Response response = await MyApi.allLandmarks(userid, zip);
+
+    try {
+      // Remove the Future.delayed as it's not needed for async operations
+      final response =
+          await MyApi.allLandmarks(userid, zip, selectedAddress.value.id ?? '');
+      print("get all landmarks");
       print(response.body);
+
       if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        String res = data['res'];
-        String msg = data['msg'];
+        final data = jsonDecode(response.body);
+        final res = data['res'] as String;
+        final msg = data['msg'] as String;
+
         if (res == "success") {
-          var re = data['data'] as List;
+          final re = data['data'] as List;
           status.value = "Done";
           landMarksList.value =
               re.map<Landmarks>((e) => Landmarks.fromJson(e)).toList();
-          landMarksList.forEach((element) {
-            landmarknames.add(element.name!);
-            print("testing1234.........>${element.name}");
-          });
-          if (landmarknames.length > 0) {
+
+          // Process landmarks
+          for (final element in landMarksList) {
+            if (element.name != null &&
+                element.name!.isNotEmpty &&
+                element.name != "  " &&
+                element.name != "null") {
+              landmarknames.add(
+                  '${element.name ?? "not available"}  ( ${element.id.toString()} )');
+            }
+          }
+
+          if (landmarknames.isNotEmpty) {
             landmarknames.add("Select a landmark");
-            landmarkDropDownValue.value =
-                landmarknames[landmarknames.length - 1];
-            print("testing5678.........>");
+            landmarkDropDownValue.value = landmarknames.last;
+            pincodeVerified.value = true;
+
+            Get.snackbar(
+              "Success",
+              "Pincode is deliverable.",
+              colorText: Colors.white,
+              duration: Duration(seconds: 1),
+              backgroundColor: primaryColor,
+              margin: EdgeInsets.all(20),
+              snackPosition: SnackPosition.BOTTOM,
+            );
           } else {
-            print("Landmark not found Please select any other Area PIN");
+            _showPincodeError();
           }
         } else {
-          status.value = "Failed: " + msg;
+          pincodeVerified.value = false;
+          status.value = "Failed: $msg";
         }
       } else {
-        status.value = "Failed with exception";
+        pincodeVerified.value = false;
+        status.value = "Failed with status code: ${response.statusCode}";
       }
-    });
+    } catch (e) {
+      pincodeVerified.value = false;
+      status.value = "Failed with exception: ${e.toString()}";
+      print("Error in getAllLandMarks: $e");
+    }
+  }
+
+  void _showPincodeError() {
+    Get.snackbar(
+      "Oops..",
+      "Pincode not deliverable. Please Change your Shipping Address PIN",
+      colorText: Colors.white,
+      backgroundColor: Colors.red,
+      margin: EdgeInsets.all(20),
+      snackPosition: SnackPosition.BOTTOM,
+    );
+    print("Landmark not found. Please select any other Area PIN");
   }
 }

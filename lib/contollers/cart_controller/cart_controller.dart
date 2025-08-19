@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:Susani/consts/app_constraints.dart';
 import 'package:Susani/contollers/app_config/AppConfigController.dart';
 import 'package:Susani/contollers/checkout_controller/checkout_controller.dart';
@@ -9,15 +10,20 @@ import 'package:Susani/models/Coupon.dart';
 import 'package:Susani/models/product.dart';
 import 'package:Susani/services/remote_servies.dart';
 import 'package:Susani/utils/routes_pages/CommonTool.dart';
+import 'package:Susani/views/widgets/product_design.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import '../../consts/app_color.dart';
 import '../dashboard_controller/dashboard_controller.dart';
 
 class CartController extends GetxController {
+  var selectedtype = 'Na'.obs;
+  var productidSelected = false.obs;
+  var productidSizeSelected = false.obs;
+  var productidQty = 1.obs;
 
-  var selectedtype='Na'.obs;
   var cartItems = <CartItem>[].obs;
   var subTotal = 0.0.obs;
   var subTotalDiscount = 0.0.obs;
@@ -34,9 +40,10 @@ class CartController extends GetxController {
   var cartIndex = 0.obs;
   var clickedIndex = 0.obs;
   MyAppConfigController appConfigController = Get.put(MyAppConfigController());
-  CheckoutController checkoutController = Get.put(CheckoutController());
+  CheckoutController checkoutController = Get.find<CheckoutController>();
   SignInController signController = Get.put(SignInController());
   ProductController productController = Get.put(ProductController());
+  var typechange = false.obs;
 
   @override
   void onInit() {
@@ -46,98 +53,92 @@ class CartController extends GetxController {
     super.onInit();
   }
 
-  void saveToCart(CartItem cartItem, String user_id, [BuildContext? context]) {
-    status.value = "Loading";
-    Future.delayed(Duration(seconds: 1), () async {
-      http.Response response = await MyApi.saveToCart(cartItem, user_id);
-      print(response.body);
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        String res = data['res'];
-        String msg = data['msg'];
-        if (res == "success") {
-          var re = data['data'];
-          status.value = "Done";
-
-          if (context != null) {
-            CommonTool().showInSnackBar(
-              cartItem.product!.name! + " added to the cart",
-              context,
-              bgcolor: Colors.green,
-            );
-          }
-        } else {
-          var dashboardController = Get.put(DashboardController());
-
-          Get.defaultDialog(
-                title: "CONFIRMATION",
-                titleStyle: TextStyle(
-                    fontSize: 16),
-                middleText: msg,
-                middleTextStyle:
-                TextStyle(
-                    fontSize: 12),
-                cancel: ElevatedButton(
-                    style: ElevatedButton
-                        .styleFrom(
-                        backgroundColor: Colors
-                            .white),
-                    onPressed: () {
-                      // dashboardController.goToTab(3);
-                      Get.back();
-                    },
-                    child: Text(
-                        "Cancel",
-                        style:
-                        TextStyle(
-                          color: Colors
-                              .black,
-                        ))),
-                confirm: ElevatedButton(
-                    style: ElevatedButton
-                        .styleFrom(
-                        backgroundColor: Color
-                            .fromARGB(
-                            255,
-                            3,
-                            33,
-                            49),
-                        elevation:
-                        5),
-                    onPressed: () {
-                      daleteAllItem();
-                      cartItem.clear_cart = true;
-                      saveToCart(cartItem, user_id,context);
-                      Get.back();
-                      // dashboardController.goToTab(3);
-                    },
-                    child: Text(
-                        "Clear",
-                        style:
-                        TextStyle(
-                          color: Colors
-                              .white,
-                        ))),
-                contentPadding:
-                EdgeInsets.all(20));
-
-
-          status.value = "Failed: " + msg;
-        }
-      } else {
-        status.value = "Failed with exception";
-      }
-    });
+  void updateCart() {
+    CommonTool().getUserId().then((value) => {
+          if (value != "") {getCartItems(signController.id.value)}
+        });
   }
 
-  void getCartItems(String user_id) {
+  Future<void> saveToCart(CartItem cartItem, String user_id,
+      [BuildContext? context]) async {
+    typechange.value = false;
     status.value = "Loading";
-    cartItems.clear();
+    print("saveToCart");
+
+    http.Response response = await MyApi.saveToCart(cartItem, user_id);
+    // print(response.body);
+    var data = jsonDecode(response.body);
+
+    print(data['msg']);
+
+    if (response.statusCode == 200) {
+      String res = data['res'];
+      String msg = data['msg'];
+      if (res == "success") {
+        var re = data['data'];
+        status.value = "Done";
+
+        if (context != null) {
+          CommonTool().showInSnackBar(
+            cartItem.product!.name! + " added to the cart",
+            context,
+            bgcolor: Colors.green,
+          );
+        }
+      } else {
+        typechange.value = true;
+
+        Get.defaultDialog(
+            title: "CONFIRMATION",
+            titleStyle: TextStyle(fontSize: 16),
+            middleText: msg,
+            middleTextStyle: TextStyle(fontSize: 12),
+            cancel: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                onPressed: () {
+                  // dashboardController.goToTab(3);
+                  typechange.value = false;
+                  updateCart();
+                  Get.back();
+                },
+                child: Text("Cancel",
+                    style: TextStyle(
+                      color: Colors.black,
+                    ))),
+            confirm: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 3, 33, 49),
+                    elevation: 5),
+                onPressed: () {
+                  daleteAllItem();
+                  cartItem.clear_cart = true;
+                  saveToCart(cartItem, user_id, context);
+                  updateCart();
+                  typechange.value = false;
+                  Get.back();
+                  // dashboardController.goToTab(3);
+                },
+                child: Text("Clear",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ))),
+            contentPadding: EdgeInsets.all(20));
+        status.value = "Failed: " + msg;
+      }
+    } else {
+      status.value = "Failed with exception";
+    }
+  }
+
+  Future<void> getCartItems(String user_id) async {
+    // print("getCartItems");
+    status.value = "getCartItemsLoading";
     // print("user id $user_id");
-    Future.delayed(Duration(seconds: 1), () async {
-      http.Response response = await MyApi.getCartItems(user_id);
-      print(" getCartItems " + user_id.toString());
-      print(response.body);
+
+    http.Response response = await MyApi.getCartItems(user_id);
+    print(" getCartItems " + user_id.toString());
+    // print(response.body);
+    try {
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         String res = data['res'];
@@ -155,10 +156,10 @@ class CartController extends GetxController {
             var size = item["size"];
             var quantity = item["quantity"];
             var total = item["total"];
-             var tax =  double.parse(item["tax"].toString());
-             var type =  item["type"].toString();
+            var tax = double.parse(item["tax"].toString());
+            var type = item["type"].toString();
 
-            print(tax);
+            // print(tax);
 
             cartItem.id = int.parse(id);
             cartItem.quantity.value = int.parse(quantity);
@@ -170,43 +171,97 @@ class CartController extends GetxController {
             cartItem.type = type.toString();
             status.value = "Done";
             addToCart(cartItem);
+            print(totalQuantity.value.toString());
           }
         } else {
-          status.value = "Failed: " + msg;
+          status.value = "Failed: s" + msg;
         }
       } else {
         status.value = "Failed with exception";
       }
-    });
+    } catch (e) {
+      // Get.snackbar("Oops..", e.toString(),
+      //     colorText: Colors.white,
+      //     backgroundColor: Colors.red);
+    }
+  }
+
+  RxBool isProductInCartCheckSize(String pid, String size) {
+    productidSelected.value = false;
+    productidSizeSelected.value = false;
+    productidQty.value = 1;
+    print(pid + " ||" + size);
+    for (var element in cartItems) {
+      if (pid == element.product!.id) {
+        print(
+            element.product!.id.toString() + " || " + element.size.toString());
+        productidSelected.value = true;
+        if (size == element.size) {
+          productidSizeSelected.value = true;
+          productidQty.value = element.quantity.value;
+          break;
+        }
+      } else {
+        productidSelected.value = false;
+      }
+    }
+    return productidSelected;
+  }
+
+  RxBool isProductInCartGetSize(String pid, String size) {
+    productidSelected.value = false;
+    productidSizeSelected.value = false;
+    productidQty.value = 1;
+    print(pid + " ||" + size);
+    for (var element in cartItems) {
+      if (pid == element.product!.id) {
+        print(
+            element.product!.id.toString() + " || " + element.size.toString());
+        productidSelected.value = true;
+        if (size == element.size) {
+          productidSizeSelected.value = true;
+          productidQty.value = element.quantity.value;
+          break;
+        }
+      } else {
+        productidSelected.value = false;
+      }
+    }
+    return productidSelected;
   }
 
   void daleteItem(CartItem cartItem) {
+    print("daleteItem");
+    print(cartItem.id);
     status.value = "Loading";
-    Future.delayed(Duration(seconds: 1), () async {
-      http.Response response = await MyApi.deleteCartItem(cartItem.id!);
-      print(response.body);
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        String res = data['res'];
-        String msg = data['msg'];
-        if (res == "success") {
-          var re = data['data'];
-          status.value = "Done";
-          removeFromCart(cartItem);
+    if (cartItem.id != null) {
+      Future.delayed(Duration(seconds: 1), () async {
+        http.Response response = await MyApi.deleteCartItem(cartItem.id!);
+        // print(response.body);
+        if (response.statusCode == 200) {
+          var data = jsonDecode(response.body);
+          String res = data['res'];
+          String msg = data['msg'];
+          if (res == "success") {
+            var re = data['data'];
+            status.value = "Done";
+            removeFromCart(cartItem);
+          } else {
+            status.value = "Failed: " + msg;
+          }
         } else {
-          status.value = "Failed: " + msg;
+          status.value = "Failed with exception";
         }
-      } else {
-        status.value = "Failed with exception";
-      }
-    });
+      });
+    }
   }
 
   Future<String> daleteAllItem() async {
+    // print("daleteAllItem");
     status.value = "Loading";
     http.Response response =
         await MyApi.deleteAllCartItem(signController.id.value);
-    print(response.body);
+    // print(response.body);
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       String res = data['res'];
@@ -235,7 +290,6 @@ class CartController extends GetxController {
 
   void removeFromCart(CartItem cartItem) {
     promoCodeValue.value = 0.0;
-
     cartItems.remove(cartItem);
     // if (cartItems.length > 0) {
     //   subTotal.value = subTotal.value -
@@ -248,47 +302,72 @@ class CartController extends GetxController {
     createTotal();
   }
 
-  void addQuantityToCartTable(CartItem cartItem, int quantity, String type) {
+  Future<void> addQuantityToCartTable(
+      CartItem cartItem, int quantity, String type) async {
+    print("addQuantityToCartTable");
+    print(cartItem.product!.id);
     addQuantStatus.value = "Loading";
-    Future.delayed(Duration(microseconds: 500), () async {
+
+    if (quantity > 0) {
       http.Response response = await MyApi.addQuantity(
-          signController.id.toString(), cartItem.product!.id, quantity, type);
-      print(response.body);
+          signController.id.toString(),
+          cartItem.product!.id,
+          quantity,
+          type,
+          cartItem.id.toString());
+      // print(response.body);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         String res = data['res'];
         String msg = data['msg'];
         if (res == "success") {
           var re = data['data'];
+
           addQuantStatus.value = "Done";
+
+          // Get.snackbar("Message", msg,
+          // colorText: Colors.white,
+          // margin: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+          // backgroundColor: AppColor.bottomitemColor1,
+          // snackPosition: SnackPosition.BOTTOM);
           if (type == "minus") {
             minusQuantity(cartItem);
           } else {
             addQuantity(cartItem);
           }
           createSubtotal();
+          updateCart();
         } else {
           addQuantStatus.value = "Failed: " + msg;
         }
       } else {
         addQuantStatus.value = "Failed with exception";
       }
-    });
+    }
+
+    if (cartItem.id == null) {
+      removeFromCart(cartItem);
+    }
   }
 
   void addQuantity(CartItem cartItem) {
+    // print("addQuantity");
     promoCodeValue.value = 0.0;
+
     createSubtotal();
     createTotal();
   }
 
   void minusQuantity(CartItem cartItem) {
+    // print("minusQuantity");
     promoCodeValue.value = 0.0;
     createSubtotal();
     createTotal();
   }
 
   void createSubtotal() {
+    // print("createSubtotal");
+
     double st = 0;
     double dst = 0;
     double sdtax = 0;
@@ -297,9 +376,8 @@ class CartController extends GetxController {
       totalQuantity.value += cartItem.quantity.value;
       if (checkoutController.serviceType.value == "Urgent Service" ||
           checkoutController.serviceType.value == "Semi Urgent Service") {
-
-        var itmeTotalTax = cartItem.quantity *
-            (double.parse(cartItem.tax.toString()));
+        var itmeTotalTax =
+            cartItem.quantity * (double.parse(cartItem.tax.toString()));
         sdtax += itmeTotalTax;
 
         var itmeTotal = cartItem.quantity *
@@ -311,9 +389,8 @@ class CartController extends GetxController {
         st += itmeTotal;
       } else {
         // print("cartItem.tax :" +cartItem.tax.toString());
-        var itmeTotalTax = cartItem.quantity *
-            (double.parse(cartItem.tax.toString()));
-
+        var itmeTotalTax =
+            cartItem.quantity * (double.parse(cartItem.tax.toString()));
 
         var itmeTotal = cartItem.quantity *
             (double.parse(cartItem.product!.mrp.toString()) -
@@ -323,7 +400,7 @@ class CartController extends GetxController {
             double.parse(cartItem.product!.discount.toString());
 
         sdtax += itmeTotalTax;
-        print("${sdtax} = ${cartItem.quantity} * ${cartItem.tax.toString()}");
+//        print("${sdtax} = ${cartItem.quantity} * ${cartItem.tax.toString()}");
 
         st += itmeTotal;
         dst += itmeTotalDiscount;
@@ -335,12 +412,16 @@ class CartController extends GetxController {
   }
 
   void createTotal() {
+    // print("createTotal");
     var newsub = double.parse(subTotal.value.toString());
     newsub = newsub - promoCodeValue.value;
     var shippingcharge = newsub >=
-            num.parse(appConfigController.appConfig.no_shipping_charge_criteria_amount.toString())
+            num.parse(appConfigController
+                .appConfig.value.no_shipping_charge_criteria_amount
+                .toString())
         ? 0
-        : num.parse(appConfigController.appConfig.shipping_fee.toString());
+        : num.parse(
+            appConfigController.appConfig.value.shipping_fee.toString());
     newsub = newsub + shippingcharge;
     subTotalWithShipping.value = newsub;
     totalTax.value = tax.value;
@@ -355,7 +436,7 @@ class CartController extends GetxController {
   serviceCharge() {
     var serviceCharge = (subTotal.value *
             double.parse(appConfigController
-                .appConfig.urgent_service_charge_percent
+                .appConfig.value.urgent_service_charge_percent
                 .toString())) /
         100;
     return serviceCharge;
@@ -366,14 +447,48 @@ class CartController extends GetxController {
   }
 
   CartItem isProductInCart(Product p) {
+    print("isProductInCart");
     CartItem item = new CartItem();
     cartItems.forEach((element) {
-      if (p.id == element.product!.id) {
+      print(p.id.toString() + "==" + element.product!.id.toString());
+
+      if (p.id == element.product!.id && p.size == element.size) {
         item = element;
       }
     });
 
     return item;
+  }
+
+  CartItem isProductInLaundryCart(Product p) {
+    // print("isProductInCart");
+    CartItem item = new CartItem();
+    cartItems.forEach((element) {
+      // print(p.id.toString() +"=="+ element.product!.id.toString());
+
+      if (p.id == element.product!.id /*&& p.size == element.size*/) {
+        item = element;
+      }
+    });
+
+    return item;
+  }
+
+  RxBool isProductInCartCheck(Product p) {
+    RxBool pcheck = false.obs;
+    CartItem item = new CartItem();
+    cartItems.forEach((element) {
+      if (p.id == element.product!.id) {
+        print(element.product!.id.toString() +
+            " || " +
+            element.product!.size.toString());
+        pcheck = true.obs;
+      } else {
+        pcheck = false.obs;
+      }
+    });
+
+    return pcheck;
   }
 
   Map<String, dynamic> toJson(var cartitems) => {
@@ -383,15 +498,15 @@ class CartController extends GetxController {
         "user_id": signController.id.toString(),
         "shipping_charge": subTotal.value <
                 double.parse(
-                    appConfigController.appConfig.shipping_fee.toString())
-            ? appConfigController.appConfig.shipping_fee.toString()
+                    appConfigController.appConfig.value.shipping_fee.toString())
+            ? appConfigController.appConfig.value.shipping_fee.toString()
             : "0",
         "promoCodeValue": promoCodeValue.toString(),
         "totalTax": totalTax.toString(),
         "payment_methods": checkoutController.paymentMethod.toString(),
         "shipping_address": checkoutController.selectedAddress.toJson(),
         "coupon": coupon.toJson(),
-        "landmark": checkoutController.landmarkDropDownValue.value.toString(),
+        "landmark": checkoutController.selectedAddress.value.landmark ?? '',
         "pick_date_time": checkoutController.dateTime.value.toString(),
         "quantity": cartItems.length,
         "cart_items": cartitems,

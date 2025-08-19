@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:Susani/services/remote_servies.dart';
 
 class ProductCategoriesController extends GetxController {
-  var type="school".obs;
+  var type="laundry".obs;
   var categoriesName = "All".obs;
   var searchCategoriesName = "".obs;
   var isLoading = true.obs;

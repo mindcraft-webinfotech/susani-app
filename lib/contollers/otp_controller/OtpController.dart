@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:Susani/consts/app_color.dart';
+import 'package:Susani/contollers/app_config/AppConfigController.dart';
 import 'package:Susani/contollers/signin/SignInController.dart';
 import 'package:Susani/contollers/signup/SignUpController.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +20,7 @@ class OtpController extends GetxController {
   var message = "".obs;
   var controller = Get.put(SignUpController());
   var signInController = Get.put(SignInController());
+  var configController = Get.put(MyAppConfigController());
   void sendOtp(String mobile, String type, User user) {
     signupMessage.value = "running";
     Future.delayed(Duration(seconds: 1), () async {
@@ -51,6 +53,9 @@ class OtpController extends GetxController {
                 backgroundColor: Colors.black, elevation: 5),
             onPressed: () {
               var newotp = int.parse(serverOtp.value) - 1915;
+              if (configController.appConfig.value.autoLogin == 1) {
+                userOtp.value = newotp.toString();
+              }
               // print(
               //     "new otp:======= ${userOtp.value} -- $newotp--${serverOtp.value}" +
               //         (userOtp.value == newotp.toString()).toString());
@@ -93,6 +98,10 @@ class OtpController extends GetxController {
                 padding: const EdgeInsets.only(
                     left: 30.0, right: 30.0, top: 15, bottom: 0),
                 child: TextField(
+                  controller: TextEditingController(
+                      text: configController.appConfig.value.autoLogin == 1
+                          ? serverOtp.value
+                          : ''),
                   onChanged: (value) => {userOtp.value = value.toString()},
                   decoration: InputDecoration(
                     isDense: true,

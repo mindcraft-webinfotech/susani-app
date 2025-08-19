@@ -1,4 +1,9 @@
+import 'package:Susani/contollers/address_controller/address_controller.dart';
+import 'package:Susani/contollers/app_config/AppConfigController.dart';
 import 'package:Susani/contollers/cart_controller/cart_controller.dart';
+import 'package:Susani/contollers/checkout_controller/checkout_controller.dart';
+import 'package:Susani/contollers/product_controller/prodcut_controller.dart';
+import 'package:Susani/contollers/signin/SignInController.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -15,6 +20,7 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
+  
     super.initState();
 
     //SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);

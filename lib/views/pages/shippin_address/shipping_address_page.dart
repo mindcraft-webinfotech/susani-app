@@ -5,7 +5,7 @@ import 'package:Susani/views/widgets/address_card_design.dart';
 
 class ShippingAddressPage extends StatelessWidget {
   ShippingAddressPage({Key? key}) : super(key: key);
-  var addressController = Get.put(AddressController());
+  var addressController = Get.find<AddressController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(

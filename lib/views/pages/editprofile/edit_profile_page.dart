@@ -34,10 +34,10 @@ class _EditProfilePage extends State<EditProfilePage> {
   final TextEditingController address = TextEditingController();
   var _selectedGender = "".obs;
   final TextEditingController contact = TextEditingController();
-  final addressController = Get.put(AddressController());
+  final addressController = Get.find<AddressController>();
   var newPath = "".obs;
   final SignInController signInController = Get.put(SignInController());
-  final CheckoutController checkoutController = Get.put(CheckoutController());
+  final CheckoutController checkoutController = Get.find<CheckoutController>();
   final EditProfileController editProfileController =
       Get.put(EditProfileController());
   var filepath = "";
@@ -218,7 +218,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                 SizedBox(height: 10),
 
                 TextField(
-                  readOnly: true,
+                  readOnly: false,
                   controller: email,
                   decoration: InputDecoration(
                       border: OutlineInputBorder(),
@@ -357,9 +357,11 @@ class _EditProfilePage extends State<EditProfilePage> {
                               new Address();
                           modal(context);
                         },
-                        child: Text("SHIPPING ADDRESS",
+                        child: Text("SHIPPING ADDRESS +",
                             style: TextStyle(
-                                fontSize: 11, fontWeight: FontWeight.w600)),
+                                color: AppColor.backgroundColor,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600)),
                       ),
                     ],
                   ),
@@ -397,7 +399,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                         user.name = name.text.toString();
                         user.last_name = last_name.text.toString();
                         user.contact = contact.text.toString();
-                        // user.email = email.text.toString();
+                        user.email = email.text.toString();
                         // bool emailValid = RegExp(
                         //         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                         //     .hasMatch(user.email!);
@@ -406,8 +408,8 @@ class _EditProfilePage extends State<EditProfilePage> {
                         //  user.address = address.text.toString();
                         // if (emailValid) {
                         user.gender = _selectedGender.value;
-                        user.selected_address_id =
-                            checkoutController.selectedId.value;
+                        user.selected_address_id = int.parse(
+                            checkoutController.selectedAddress.value.id!);
                         var oldpic = "";
                         if (user.image != "" || user.image != "null") {
                           oldpic = user.image.toString();

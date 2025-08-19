@@ -12,209 +12,245 @@ import 'package:Susani/views/widgets/addressForm.dart';
 import 'package:Susani/views/widgets/address_card_design.dart';
 import 'package:Susani/views/widgets/app_button.dart';
 
+import '../../../contollers/cart_controller/cart_controller.dart';
 import '../../../contollers/signin/SignInController.dart';
 import '../../pages/WebView/MyWebView.dart';
 
 class FirstWidget {
-  static var pcontroller = Get.put(ProductController());
-  static var controller = Get.put(CheckoutController());
-  static var addressController = Get.put(AddressController());
-  var signinController = Get.put(SignInController());
+  static var pcontroller = Get.find<ProductController>();
+  static var checkoutcontroller = Get.find<CheckoutController>();
+  var addressController = Get.find<AddressController>();
+  var signinController = Get.find<SignInController>();
+  var cartController = Get.find<CartController>();
   BuildContext context;
 
   FirstWidget({required this.context});
 
-  var addressindex = "".obs;
-
   void _showDialog(Widget child) {
     showCupertinoModalPopup<void>(
-        context: context,
-        builder: (BuildContext context) => Container(
-              height: 216,
-              padding: const EdgeInsets.only(top: 6.0),
-              margin: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              color: CupertinoColors.systemBackground.resolveFrom(context),
-              child: SafeArea(
-                top: false,
-                child: child,
-              ),
-            ));
+      context: context,
+      builder: (BuildContext context) => Container(
+        height: 216,
+        padding: const EdgeInsets.only(top: 6.0),
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        child: SafeArea(
+          top: false,
+          child: child,
+        ),
+      ),
+    );
   }
 
   @override
-  void initState() {
-    controller.landmarkDropDownValue.value = "";
-    addressController.availablePincodes();
-  }
-
-  @override
-  Container get firstWidget => Container(
-
-          // height: Get.size.height + 100,
-          child: Obx(
-        () => controller.showNewAddressForm.value
-            ? AddressForm.FormContainer
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text("Address",
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w800)),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 5.0),
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor: WidgetStatePropertyAll(
-                                  AppColor.bottomitemColor2)),
-                          onPressed: () {
-                            print("please add address...........>");
-                            controller.showNewAddressForm.value = true;
-                            addressController.addressForEdit.value =
-                                new Address();
-                          },
-                          child: Text("SHIPPING ADDRESS",
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColor.backgroundColor)),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Obx(
-                    () => addressController.status.value != "done"
-                        ? Container(
-                            child: Center(
-                              // child: Text("Address not found "),
-                              child: Text(addressController.status.toString()),
-                            ),
-                          )
-                        : ListView.builder(
-                            itemCount: addressController.addresses.length,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) => AddressCardDesign(
-                                context: context,
-                                index: index,
-                                callback: (address) {
-                                  addressindex.value = addressController
-                                      .addresses[index].landmark
-                                      .toString();
-                                  addressController.addressForEdit.value =
-                                      address;
-                                  print(
-                                      "test address name" + addressindex.value);
-                                  controller.showNewAddressForm.value = true;
-                                  controller.getAllLandMarks(
-                                      int.parse(signinController.id.value),
-                                      addressController
-                                          .addressForEdit.value.pincode!);
-                                }).addressCardDesign),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+  Container get firstWidget {
+    return Container(
+      child: Obx(
+        () {
+          return checkoutcontroller.showNewAddressForm.value
+              ? AddressForm.FormContainer
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text("Select Landmark",
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w800)),
-                        ),
-                        SizedBox(
-                          height: 10,
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text(
+                            "Address",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(10)),
-                            padding: EdgeInsets.all(15),
-                            child: controller.landmarknames.length > 0
-                                ?
-                                // Text("helo")
-                                DropdownButton<String>(
-                                    value:
-                                        controller.landmarkDropDownValue.value,
-                                    icon: const Icon(Icons.arrow_downward),
-                                    elevation: 16,
-                                    style: const TextStyle(
-                                        color: Colors.deepPurple),
-                                    onChanged: (String? newValue) {
-                                      controller.landmarkDropDownValue.value =
-                                          newValue!;
-                                    },
-                                    items: controller.landmarknames.value
-                                        .map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    }).toList(),
-                                    onTap: () {
-                                      print("dropdown pressed");
-                                    },
-                                  )
-                                : Container(
-                                    child: Text("Select Landmark"),
-                                  ),
+                          padding: const EdgeInsets.only(right: 5.0),
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStatePropertyAll(
+                                AppColor.bottomitemColor2,
+                              ),
+                            ),
+                            onPressed: () {
+                              checkoutcontroller.showNewAddressForm.value =
+                                  true;
+                              addressController.addressForEdit.value =
+                                  new Address();
+                            },
+                            child: Text(
+                              "SHIPPING ADDRESS",
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: AppColor.backgroundColor,
+                              ),
+                            ),
                           ),
-                        )
+                        ),
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      print(
-                          ">>>>>>>?????${controller.selectedId.value} ---${controller.landmarkDropDownValue.value}");
-                      if (controller.selectedId.value < 0 ||
-                          (controller.landmarkDropDownValue.value ==
-                                  "Select a landmark" ||
-                              controller.landmarkDropDownValue.value == "")) {
-                        Get.snackbar(
-                            "Alert", " Please select an address and landmark",
+                    Obx(
+                      () {
+                        print(addressController.loadAddresStatus.value +
+                            "??????" +
+                            addressController.addresses.length.toString());
+
+                        return addressController.loadAddresStatus.value !=
+                                "done"
+                            ? Container(
+                                child: Center(
+                                  child:
+                                      Text(addressController.status.toString()),
+                                ),
+                              )
+                            : ListView.builder(
+                                itemCount: addressController.addresses.length,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) =>
+                                    AddressCardDesign(
+                                  context: context,
+                                  index: index,
+                                  callback: (address) {
+                                    checkoutcontroller
+                                        .showNewAddressForm.value = true;
+
+                                    addressController.addressForEdit.value =
+                                        address;
+                                  },
+                                ).addressCardDesign,
+                              );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () {
+                        print(
+                            "${checkoutcontroller.selectedAddress.value.id.toString()} >>>>>>>>>><");
+                        if (checkoutcontroller.selectedAddress.value.id
+                                    .toString() ==
+                                "" ||
+                            checkoutcontroller.selectedAddress.value.id
+                                    .toString() ==
+                                "null") {
+                          Get.snackbar(
+                            "Alert",
+                            "Please select an address",
                             icon: Icon(Icons.person, color: Colors.white),
                             snackPosition: SnackPosition.BOTTOM,
                             colorText: Colors.white,
                             animationDuration: Duration(microseconds: 100),
-                            backgroundColor: Colors.black);
-                      } else {
-                        print("Addresss------------->" +
-                            controller.selectedAddress.value.id.toString());
-
-                        print("landmark-------------->" +
-                            controller.landmarkDropDownValue.value.toString());
-
-                        addressController.availablePincodes();
-                        addressController.checkpinAvailability(controller
-                            .selectedAddress.value.pincode
-                            .toString());
-                        Get.toNamed(MyPagesName.CalenderPage);
-                      }
-                    },
-                    child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: AppButton(buttonTitle: "Continue").myButton),
-                  )
-                ],
-              ),
-      ));
+                            backgroundColor: Colors.black,
+                          );
+                        } else {
+                          addressController.availablePincodes();
+                          addressController.checkpinAvailability(
+                            checkoutcontroller.selectedAddress.value.pincode
+                                .toString(),
+                          );
+                          Get.toNamed(MyPagesName.CalenderPage);
+                        }
+                      },
+                      child: Card(
+                        color: AppColor.bottomitemColor2.withOpacity(0.1),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.calendar_month_outlined,
+                                      color: AppColor.bottomitemColor2),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "Select a delivery date",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w900,
+                                      color: AppColor.bottomitemColor2,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Obx(() {
+                                    final selectedDate =
+                                        checkoutcontroller.dateTime.value;
+                                    final now = DateTime.now();
+                                    // Show blank if not selected or selected date is before today
+                                    if (!checkoutcontroller
+                                            .isDateSelected.value ||
+                                        selectedDate == null ||
+                                        selectedDate.isBefore(DateTime(
+                                            now.year, now.month, now.day))) {
+                                      return Text(
+                                        "",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      );
+                                    }
+                                    return Text(
+                                      "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    );
+                                  }),
+                                  const SizedBox(width: 10),
+                                  Obx(() {
+                                    final deliveryType =
+                                        checkoutcontroller.serviceType.value;
+                                    return deliveryType.isNotEmpty
+                                        ? Container(
+                                            decoration: BoxDecoration(
+                                              color: AppColor.bottomitemColor2,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 2),
+                                            child: Text(
+                                              deliveryType,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                                letterSpacing: 0.2,
+                                              ),
+                                            ),
+                                          )
+                                        : Container();
+                                  }),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+        },
+      ),
+    );
+  }
 }
 
 class _DatePickerItem extends StatelessWidget {
@@ -224,9 +260,8 @@ class _DatePickerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
             color: CupertinoColors.inactiveGray,
@@ -239,7 +274,7 @@ class _DatePickerItem extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: children,

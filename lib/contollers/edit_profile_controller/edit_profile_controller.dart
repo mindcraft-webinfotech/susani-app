@@ -20,14 +20,14 @@ class EditProfileController extends GetxController {
       StreamedResponse sresponse =
           await MyApi.editProfile(user, oldpic: oldPic, newpic: newpic);
       if (sresponse.statusCode == 200) {
-        print(newpic);
-        print(sresponse);
+        // print(newpic);
         var response = await http.Response.fromStream(sresponse);
-        var data = jsonDecode(response.body);
+        // print("profile edit ");
         print(response.body);
+        var data = jsonDecode(response.body);
+
         String res = data['res'];
         String msg = data['msg'];
-        print(data);
         if (res == "success") {
           var jsondata = data['data'] as List;
           status.value = true;

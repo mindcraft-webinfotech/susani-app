@@ -6,6 +6,7 @@ import 'package:Susani/contollers/product_controller/product_categories_controll
 import 'package:Susani/models/CartItem.dart';
 import 'package:Susani/models/Order.dart';
 import 'package:Susani/models/User.dart';
+import 'package:Susani/views/pages/ecom/utils/color_data.dart';
 import 'package:Susani/views/pages/product/product_page.dart';
 import 'package:Susani/views/pages/profile/profile_page.dart';
 import 'package:Susani/views/pages/schoolshop/schoolshop.dart';
@@ -26,6 +27,7 @@ import 'package:Susani/utils/routes_pages/pages_name.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../consts/app_images.dart';
 import '../../../contollers/dashboard_controller/dashboard_controller.dart';
 import '../../../contollers/search_controller/search_controller.dart';
 import '../schoolshop/Search_School.dart';
@@ -119,7 +121,16 @@ class NewsPage extends GetView<NewsController> {
                             padding: const EdgeInsets.all(18),
                             child: Badge(
                               label: Obx(
-                                () => Text(
+                                () =>
+                                cartController
+                                    .addQuantStatus
+                                    .value ==
+                                    "Loading"
+                                    ?
+                                CircularProgressIndicator(
+                                  color: primaryColor,
+                                ):
+                                    Text(
                                   cartController.totalQuantity.toString(),
                                   style: TextStyle(
                                       color: AppColor.backgroundColor),
@@ -470,7 +481,7 @@ class NewsPage extends GetView<NewsController> {
                     ),
                     InkWell(
                       onTap: () {
-                       // Get.to(ProductDetailsDemo());
+                       // Get.to(EcomDAshboard());
                       },
                       child: Container(
                         padding: EdgeInsets.all(5),
@@ -479,10 +490,7 @@ class NewsPage extends GetView<NewsController> {
                             child: Image.asset("assets/images/comingsoon.jpeg")),
                       ),
                     ),
-
-
-
-                    const SizedBox(
+                    SizedBox(
                       height: 20,
                     ),
                     Obx(
@@ -581,11 +589,13 @@ class NewsPage extends GetView<NewsController> {
           padding: EdgeInsets.symmetric(horizontal: 5),
           child: Row(
             children: [
+              orderController.orders[index].cartItems![subindex].product!.img!.length == 0
+                  ? Text(" Data Missing  "):
               GestureDetector(
                   onTap: () {
                     Get.toNamed(MyPagesName.productFullView,
                         arguments: orderController
-                            .orders[index].cartItems![subindex].product.id);
+                            .orders[index].cartItems![subindex].product!.id);
                   },
                   child: CircleAvatar(
                     // radius: 30.0,
@@ -638,194 +648,5 @@ class NewsPage extends GetView<NewsController> {
       ));
     }
     return itemlis;
-  }
-}
-
-class Product {
-  final String id;
-  final String title;
-  final String description;
-  final List<String> imageUrls; // Updated to a list of image URLs
-  final double price;
-  final List<String> sizes; // Added sizes
-
-  Product({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.imageUrls,
-    required this.price,
-    required this.sizes,
-  });
-}
-
-class ProductDetailsDemo extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // Sample Product with multiple images and sizes
-    Product product = Product(
-      id: '1',
-      title: 'Cool T-Shirt',
-      description: 'This is a really cool t-shirt made from 100% cotton. It is perfect for casual outings and comfortable to wear.',
-      imageUrls: [
-        'https://example.com/tshirt1.jpg',
-        'https://example.com/tshirt2.jpg',
-        'https://example.com/tshirt3.jpg',
-      ], // Use your image URLs
-      price: 19.99,
-      sizes: ['S', 'M', 'L', 'XL'], // Sample sizes
-    );
-
-    return ProductDetailsScreen(product: product);
-  }
-}
-
-class ProductDetailsScreen extends StatefulWidget {
-  final Product product;
-
-  ProductDetailsScreen({required this.product});
-
-  @override
-  _ProductDetailsScreenState createState() => _ProductDetailsScreenState();
-}
-
-class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  int _currentIndex = 0;
-  String? _selectedSize;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.product.title),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Image Slider
-            Container(
-              height: 250,
-              child: PageView.builder(
-                itemCount: widget.product.imageUrls.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  return Image.network(
-                    widget.product.imageUrls[index],
-                    fit: BoxFit.cover,
-                  );
-                },
-              ),
-            ),
-
-            // Dot Indicator for Image Slider
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(widget.product.imageUrls.length, (index) {
-                return Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4),
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _currentIndex == index ? Colors.blue : Colors.grey,
-                  ),
-                );
-              }),
-            ),
-
-            const SizedBox(height: 10),
-
-            // Product Title
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                widget.product.title,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-            ),
-
-            // Product Price
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(
-                '\$${widget.product.price.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.green,
-                ),
-              ),
-            ),
-
-            // Size Selection
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Select Size:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: widget.product.sizes.map((size) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedSize = size; // Update selected size
-                    });
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    margin: EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: _selectedSize == size ? Colors.blue : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Text(
-                      size,
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-
-            // Product Description
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                widget.product.description,
-                style: TextStyle(fontSize: 16),
-                textAlign: TextAlign.justify,
-              ),
-            ),
-
-            // Add to Cart Button
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle adding to cart
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '${widget.product.title} (Size: $_selectedSize) added to cart!',
-                      ),
-                    ),
-                  );
-                },
-                child: Text('Add to Cart'),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

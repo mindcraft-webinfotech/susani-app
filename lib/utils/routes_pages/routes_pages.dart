@@ -21,6 +21,9 @@ import 'package:Susani/views/pages/product/product_full_view_page.dart';
 import 'package:Susani/views/pages/savedcards/saved_card_page.dart';
 import 'package:Susani/views/pages/shippin_address/shipping_address_page.dart';
 import 'package:Susani/views/pages/splashpage/splash_page.dart';
+import 'package:upgrader/upgrader.dart';
+
+// import '../../views/pages/ecom/screens/EcomCheckout.dart';
 
 class MyPages {
   static List<GetPage> get list => [
@@ -74,6 +77,10 @@ class MyPages {
           name: MyPagesName.checkoutPage,
           page: () => CheckoutPage(),
         ),
+        // GetPage(
+        //       name: MyPagesName.ecom_checkoutPage,
+        //       page: () => EcomCheckoutPage(),
+        //     ),
         GetPage(name: MyPagesName.SignUp, page: () => SignUp()),
         GetPage(name: MyPagesName.MyWebView, page: () => MyWebView()),
         GetPage(name: MyPagesName.SignIn, page: () => SignIn()),
